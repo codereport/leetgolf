@@ -201,7 +201,7 @@ export default function ProblemSolver({ problem }) {
       // If this is a submission and all tests passed, save the solution
       if (fullSuite && response.allPassed) {
         try {
-          await submitSolution(problem.slug, language, codeToRun, codeToRun.length);
+          await submitSolution(problem.slug, language, codeToRun, [...codeToRun].length);
           setHasSolved(true);
           setSubmissionSaved(true);
         } catch (e) {
@@ -228,7 +228,7 @@ export default function ProblemSolver({ problem }) {
     }
   };
 
-  const codeLength = code.length;
+  const codeLength = [...code].length;
   const allPassed = results && results.length > 0 && results.every(r => r.passed);
   // Get language-specific test cases and optimal length
   const languageTestCases = problem?.testCasesByLanguage?.[language] || problem?.testCases || [];
@@ -393,7 +393,6 @@ export default function ProblemSolver({ problem }) {
                 >
                   <div className="flex justify-between items-start">
                     <div className={`font-mono ${langConfig.fontClass} text-gray-200`}>
-                      <span className="text-gray-500 text-sm">f </span>
                       <span className="text-gray-200">{res.input}</span>
                       <span className="text-gray-500 mx-2">→</span>
                       <span className={res.passed ? 'text-green-300' : 'text-red-300'}>
@@ -419,6 +418,7 @@ export default function ProblemSolver({ problem }) {
                   className="p-4 rounded-lg border border-gray-700 bg-gray-800"
                 >
                   <div className={`font-mono ${langConfig.fontClass} text-gray-200`}>
+                    {test.leftArg && <span className="text-gray-200">{test.leftArg} </span>}
                     <span className="text-gray-500 text-sm">f </span>
                     <span className="text-gray-200">{test.input}</span>
                     <span className="text-gray-500 mx-2">→</span>

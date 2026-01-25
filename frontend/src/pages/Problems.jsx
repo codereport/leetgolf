@@ -11,6 +11,14 @@ const STARTER_PROBLEMS = [
     description: 'Generate a range of integers from 1 to n',
     difficulty: 'Easy',
     isStarter: true,
+  },
+  {
+    id: 'starter-rotate-iota',
+    slug: 'rotate-iota',
+    title: 'Rotate Iota',
+    description: 'Rotate a range of integers by k positions',
+    difficulty: 'Easy',
+    isStarter: true,
   }
 ];
 

@@ -78,7 +78,7 @@ router.get('/github/callback', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     
-    res.redirect(`${FRONTEND_URL}/profile`);
+    res.redirect(`${FRONTEND_URL}/problems`);
   } catch (error) {
     console.error('OAuth error:', error);
     res.redirect(`${FRONTEND_URL}?error=oauth_failed`);

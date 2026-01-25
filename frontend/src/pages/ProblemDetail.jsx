@@ -44,9 +44,52 @@ const STARTER_PROBLEMS = {
     },
     optimalLength: {
       bqn: 3,  // "1+↕"
-      apl: 3,  // "⍳⊢" or "⎕io←1"
-      j: 5,    // ">:i."
-      uiua: 4, // "+1⇡"
+      apl: 1,  // "⍳"
+      j: 4,    // ">:i."
+      uiua: 3, // "+1⇡"
+    },
+  },
+  'rotate-iota': {
+    title: 'Rotate Iota',
+    slug: 'rotate-iota',
+    description: 'Given two integers k and n, return the array 1 to n rotated left by k positions.',
+    isStarter: true,
+    // Test cases per language - dyadic function: k F n
+    testCasesByLanguage: {
+      bqn: [
+        { input: '5', expected: '⟨ 3 4 5 1 2 ⟩', leftArg: '2' },
+        { input: '6', expected: '⟨ 5 6 1 2 3 4 ⟩', leftArg: '4' },
+        { input: '4', expected: '⟨ 2 3 4 1 ⟩', leftArg: '1' },
+        { input: '8', expected: '⟨ 4 5 6 7 8 1 2 3 ⟩', leftArg: '3' },
+        { input: '10', expected: '⟨ 6 7 8 9 10 1 2 3 4 5 ⟩', leftArg: '5' },
+      ],
+      apl: [
+        { input: '5', expected: '3 4 5 1 2', leftArg: '2' },
+        { input: '6', expected: '5 6 1 2 3 4', leftArg: '4' },
+        { input: '4', expected: '2 3 4 1', leftArg: '1' },
+        { input: '8', expected: '4 5 6 7 8 1 2 3', leftArg: '3' },
+        { input: '10', expected: '6 7 8 9 10 1 2 3 4 5', leftArg: '5' },
+      ],
+      j: [
+        { input: '5', expected: '3 4 5 1 2', leftArg: '2' },
+        { input: '6', expected: '5 6 1 2 3 4', leftArg: '4' },
+        { input: '4', expected: '2 3 4 1', leftArg: '1' },
+        { input: '8', expected: '4 5 6 7 8 1 2 3', leftArg: '3' },
+        { input: '10', expected: '6 7 8 9 10 1 2 3 4 5', leftArg: '5' },
+      ],
+      uiua: [
+        { input: '5 2', expected: '[3 4 5 1 2]' },
+        { input: '6 4', expected: '[5 6 1 2 3 4]' },
+        { input: '4 1', expected: '[2 3 4 1]' },
+        { input: '8 3', expected: '[4 5 6 7 8 1 2 3]' },
+        { input: '10 5', expected: '[6 7 8 9 10 1 2 3 4 5]' },
+      ],
+    },
+    optimalLength: {
+      bqn: 4,  // "⌽1+↕" 
+      apl: 3,  // "⌽⍳"
+      j: 6,    // "|.>:i."
+      uiua: 4, // "↻+1⇡"
     },
   }
 };

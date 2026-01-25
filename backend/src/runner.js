@@ -47,13 +47,19 @@ async function initBQN() {
   bqnFmt = bqn.fmt;
 }
 
-async function runBQN(code, input) {
+async function runBQN(code, input, leftArg = null) {
   await initBQN();
   
   try {
     // Wrap code as a function applied to input
-    // {code 𝕩} input
-    const expr = `{${code} 𝕩} ${input}`;
+    // For dyadic: leftArg {𝕨 code 𝕩} input
+    // For monadic: {code 𝕩} input
+    let expr;
+    if (leftArg !== null) {
+      expr = `${leftArg} {𝕨 ${code} 𝕩} ${input}`;
+    } else {
+      expr = `{${code} 𝕩} ${input}`;
+    }
     const result = bqnEngine(expr);
     const formatted = bqnFmt(result);
     return { success: true, output: formatted };
@@ -86,7 +92,7 @@ function findUiuaExecutable() {
 
 let uiuaExecutable = null;
 
-async function runUiua(code, input) {
+async function runUiua(code, input, leftArg = null) {
   if (!uiuaExecutable) {
     uiuaExecutable = findUiuaExecutable();
   }
@@ -98,6 +104,7 @@ async function runUiua(code, input) {
   return new Promise((resolve) => {
     // Create temp file with code
     // The function receives input on the stack
+    // For Uiua, leftArg is not used separately - input contains all stack values
     const fullCode = `${input}\n${code}`;
     const tmpFile = join(tmpdir(), `uiua_${Date.now()}.ua`);
     
@@ -187,7 +194,7 @@ function findJExecutable() {
 
 let jExecutable = null;
 
-async function runJ(code, input) {
+async function runJ(code, input, leftArg = null) {
   if (!jExecutable) {
     jExecutable = findJExecutable();
   }
@@ -198,8 +205,14 @@ async function runJ(code, input) {
   
   return new Promise((resolve) => {
     // In J, apply the tacit function to the input
-    // The code should be a tacit verb that takes the input
-    const fullCode = `(${code}) ${input}\nexit 0\n`;
+    // For dyadic: leftArg (code) input
+    // For monadic: (code) input
+    let fullCode;
+    if (leftArg !== null) {
+      fullCode = `${leftArg} (${code}) ${input}\nexit 0\n`;
+    } else {
+      fullCode = `(${code}) ${input}\nexit 0\n`;
+    }
     
     const proc = spawn(jExecutable, [], {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -269,7 +282,7 @@ function findAPLExecutable() {
 
 let aplExecutable = null;
 
-async function runAPL(code, input) {
+async function runAPL(code, input, leftArg = null) {
   if (!aplExecutable) {
     aplExecutable = findAPLExecutable();
   }
@@ -284,8 +297,15 @@ async function runAPL(code, input) {
     const escapedCode = code.replace(/'/g, "''");
     const escapedInput = input.replace(/'/g, "''");
     
-    // Use ⍎ to evaluate - wrap code as dfn if needed
-    const aplInput = `]boxing on -s=min\n⎕←(${escapedCode}) ${escapedInput}\n`;
+    // For dyadic: leftArg (code) input
+    // For monadic: (code) input
+    let aplInput;
+    if (leftArg !== null) {
+      const escapedLeftArg = leftArg.replace(/'/g, "''");
+      aplInput = `]boxing on -s=min\n⎕←${escapedLeftArg} (${escapedCode}) ${escapedInput}\n`;
+    } else {
+      aplInput = `]boxing on -s=min\n⎕←(${escapedCode}) ${escapedInput}\n`;
+    }
     
     const proc = spawn(aplExecutable, ['-b'], {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -370,30 +390,31 @@ const runners = {
  * Run code for a single test case
  * @param {string} language - 'bqn', 'uiua', 'j', or 'apl'
  * @param {string} code - The user's solution code
- * @param {string} input - Test input
+ * @param {string} input - Test input (right argument)
+ * @param {string|null} leftArg - Optional left argument for dyadic functions
  * @returns {Promise<{success: boolean, output: string}>}
  */
-export async function runCode(language, code, input) {
+export async function runCode(language, code, input, leftArg = null) {
   const runner = runners[language];
   if (!runner) {
     return { success: false, output: `Unknown language: ${language}` };
   }
   
-  return runner(code, input);
+  return runner(code, input, leftArg);
 }
 
 /**
  * Run code against multiple test cases
  * @param {string} language - 'bqn', 'uiua', 'j', or 'apl'
  * @param {string} code - The user's solution code  
- * @param {Array<{input: string, expected: string}>} testCases - Test cases to run
+ * @param {Array<{input: string, expected: string, leftArg?: string}>} testCases - Test cases to run
  * @returns {Promise<Array<{input: string, expected: string, actual: string, passed: boolean}>>}
  */
 export async function runTests(language, code, testCases) {
   const results = [];
   
   for (const test of testCases) {
-    const { success, output } = await runCode(language, code, test.input);
+    const { success, output } = await runCode(language, code, test.input, test.leftArg || null);
     
     // Normalize output for comparison (trim whitespace)
     const actual = output.trim();
@@ -401,7 +422,7 @@ export async function runTests(language, code, testCases) {
     const passed = success && actual === expected;
     
     results.push({
-      input: test.input,
+      input: test.leftArg ? `${test.leftArg} f ${test.input}` : `f ${test.input}`,
       expected: test.expected,
       actual: output,
       passed,
