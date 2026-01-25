@@ -1,3 +1,5 @@
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/066e3633-8ef7-4a6e-90c3-3753c0f942d4" />
+
 # LeetGolf
 
 A code golf competitive programming platform with GitHub OAuth login.
