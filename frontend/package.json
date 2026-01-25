@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "setup": "mkdir -p public/vendor/array-box && cp -r src/vendor/array-box/fonts public/vendor/array-box/",
+    "predev": "npm run setup",
     "dev": "vite",
+    "prebuild": "npm run setup",
     "build": "vite build",
     "build:gh-pages": "GITHUB_PAGES=true vite build && cp dist/index.html dist/404.html",
     "lint": "eslint .",

@@ -1,0 +1,3 @@
+[submodule "frontend/src/vendor/array-box"]
+	path = frontend/src/vendor/array-box
+	url = https://github.com/codereport/array-box

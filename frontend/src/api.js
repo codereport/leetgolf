@@ -33,3 +33,33 @@ export async function logout() {
 export function getGitHubLoginUrl() {
   return `${API_URL}/auth/github`;
 }
+
+export async function fetchProblems() {
+  try {
+    const response = await fetch(`${API_URL}/api/problems`, {
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error('Failed to load problems');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch problems:', error);
+    throw error;
+  }
+}
+
+export async function fetchProblem(slug) {
+  try {
+    const response = await fetch(`${API_URL}/api/problems/${slug}`, {
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error('Failed to load problem');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch problem:', error);
+    throw error;
+  }
+}

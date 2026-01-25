@@ -27,3 +27,9 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Cursor
+.cursor/
+
+# Copied vendor assets (copied from submodule on build)
+frontend/public/vendor/array-box/
