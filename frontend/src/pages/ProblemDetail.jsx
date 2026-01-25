@@ -49,9 +49,9 @@ const STARTER_PROBLEMS = {
       uiua: 3, // "+1⇡"
     },
   },
-  'rotate-iota': {
-    title: 'Rotate Iota',
-    slug: 'rotate-iota',
+  'iota-rotate': {
+    title: 'Iota Rotate',
+    slug: 'iota-rotate',
     description: 'Given two integers k and n, return the array 1 to n rotated left by k positions.',
     isStarter: true,
     // Test cases per language - dyadic function: k F n
@@ -90,6 +90,48 @@ const STARTER_PROBLEMS = {
       apl: 3,  // "⌽⍳"
       j: 6,    // "|.>:i."
       uiua: 4, // "↻+1⇡"
+    },
+  },
+  'iota-hill': {
+    title: 'Iota Hill',
+    slug: 'iota-hill',
+    description: 'Given a positive integer n, return the array 1 to n concatenated with n down to 1.',
+    isStarter: true,
+    testCasesByLanguage: {
+      bqn: [
+        { input: '3', expected: '⟨ 1 2 3 3 2 1 ⟩' },
+        { input: '5', expected: '⟨ 1 2 3 4 5 5 4 3 2 1 ⟩' },
+        { input: '1', expected: '⟨ 1 1 ⟩' },
+        { input: '4', expected: '⟨ 1 2 3 4 4 3 2 1 ⟩' },
+        { input: '7', expected: '⟨ 1 2 3 4 5 6 7 7 6 5 4 3 2 1 ⟩' },
+      ],
+      apl: [
+        { input: '3', expected: '1 2 3 3 2 1' },
+        { input: '5', expected: '1 2 3 4 5 5 4 3 2 1' },
+        { input: '1', expected: '1 1' },
+        { input: '4', expected: '1 2 3 4 4 3 2 1' },
+        { input: '7', expected: '1 2 3 4 5 6 7 7 6 5 4 3 2 1' },
+      ],
+      j: [
+        { input: '3', expected: '1 2 3 3 2 1' },
+        { input: '5', expected: '1 2 3 4 5 5 4 3 2 1' },
+        { input: '1', expected: '1 1' },
+        { input: '4', expected: '1 2 3 4 4 3 2 1' },
+        { input: '7', expected: '1 2 3 4 5 6 7 7 6 5 4 3 2 1' },
+      ],
+      uiua: [
+        { input: '3', expected: '[1 2 3 3 2 1]' },
+        { input: '5', expected: '[1 2 3 4 5 5 4 3 2 1]' },
+        { input: '1', expected: '[1 1]' },
+        { input: '4', expected: '[1 2 3 4 4 3 2 1]' },
+        { input: '7', expected: '[1 2 3 4 5 6 7 7 6 5 4 3 2 1]' },
+      ],
+    },
+    optimalLength: {
+      bqn: 7,  // "(⊢∾⌽)1+↕"
+      apl: 5,  // "(⊢,⌽)⍳"
+      j: 8,    // "(,|.)>:i."
+      uiua: 6, // "⊂⇌.+1⇡"
     },
   }
 };

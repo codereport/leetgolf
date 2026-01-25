@@ -13,10 +13,18 @@ const STARTER_PROBLEMS = [
     isStarter: true,
   },
   {
-    id: 'starter-rotate-iota',
-    slug: 'rotate-iota',
-    title: 'Rotate Iota',
+    id: 'starter-iota-rotate',
+    slug: 'iota-rotate',
+    title: 'Iota Rotate',
     description: 'Rotate a range of integers by k positions',
+    difficulty: 'Easy',
+    isStarter: true,
+  },
+  {
+    id: 'starter-iota-hill',
+    slug: 'iota-hill',
+    title: 'Iota Hill',
+    description: 'Concatenate a range with its reverse',
     difficulty: 'Easy',
     isStarter: true,
   }
