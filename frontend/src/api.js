@@ -157,3 +157,69 @@ export async function formatUiua(code) {
     return { success: false, formatted: code };
   }
 }
+
+// ============================================================================
+// Submissions & Leaderboard API
+// ============================================================================
+
+/**
+ * Submit a successful solution
+ * @param {string} problemSlug
+ * @param {string} language
+ * @param {string} solution
+ * @param {number} charCount
+ */
+export async function submitSolution(problemSlug, language, solution, charCount) {
+  const response = await fetch(`${API_URL}/api/submissions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ problemSlug, language, solution, charCount }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Server error' }));
+    throw new Error(error.error || 'Failed to submit solution');
+  }
+  
+  return await response.json();
+}
+
+/**
+ * Check if current user has solved a problem
+ * @param {string} problemSlug
+ * @returns {Promise<{solved: boolean, authenticated: boolean, submissions?: Array}>}
+ */
+export async function checkSolved(problemSlug) {
+  try {
+    const response = await fetch(`${API_URL}/api/problems/${problemSlug}/solved`, {
+      credentials: 'include',
+    });
+    
+    if (!response.ok) {
+      return { solved: false, authenticated: false };
+    }
+    
+    return await response.json();
+  } catch (error) {
+    return { solved: false, authenticated: false };
+  }
+}
+
+/**
+ * Get leaderboard for a problem
+ * @param {string} problemSlug
+ * @returns {Promise<{leaderboard: Array, solved: boolean} | {error: string}>}
+ */
+export async function getLeaderboard(problemSlug) {
+  const response = await fetch(`${API_URL}/api/problems/${problemSlug}/leaderboard`, {
+    credentials: 'include',
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Server error' }));
+    throw new Error(error.error || 'Failed to get leaderboard');
+  }
+  
+  return await response.json();
+}

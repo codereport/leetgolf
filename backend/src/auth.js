@@ -100,7 +100,7 @@ router.post('/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// Middleware to verify JWT token
+// Middleware to verify JWT token (required)
 export function authenticateToken(req, res, next) {
   const token = req.cookies.token;
   
@@ -121,6 +121,26 @@ export function authenticateToken(req, res, next) {
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+}
+
+// Middleware to optionally attach user if authenticated (doesn't require auth)
+export function optionalAuth(req, res, next) {
+  const token = req.cookies.token;
+  
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = findUserById(decoded.userId);
+    req.user = user || null;
+  } catch (error) {
+    req.user = null;
+  }
+  
+  next();
 }
 
 export { router as authRouter };

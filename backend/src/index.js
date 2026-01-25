@@ -2,8 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { initDatabase } from './db.js';
-import { authRouter, authenticateToken } from './auth.js';
+import { initDatabase, saveSubmission, hasUserSolvedProblem, getLeaderboard, getUserSubmissions } from './db.js';
+import { authRouter, authenticateToken, optionalAuth } from './auth.js';
 import { runTests, runCode, getAvailableLanguages, formatUiuaCode } from './runner.js';
 
 const app = express();
@@ -124,6 +124,85 @@ app.post('/api/run', async (req, res) => {
     console.error('Error running code:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// ============================================================================
+// Submissions & Leaderboard Endpoints
+// ============================================================================
+
+// Submit a successful solution (requires authentication)
+// Body: { problemSlug: string, language: string, solution: string, charCount: number }
+app.post('/api/submissions', authenticateToken, (req, res) => {
+  try {
+    const { problemSlug, language, solution, charCount } = req.body;
+    
+    if (!problemSlug || !language || !solution || typeof charCount !== 'number') {
+      return res.status(400).json({ 
+        error: 'Missing required fields: problemSlug, language, solution, charCount' 
+      });
+    }
+    
+    if (!['bqn', 'uiua', 'j', 'apl'].includes(language)) {
+      return res.status(400).json({ 
+        error: `Invalid language: ${language}` 
+      });
+    }
+    
+    const submission = saveSubmission(req.user.id, problemSlug, language, solution, charCount);
+    
+    if (submission) {
+      res.json({ success: true, submission, isNew: true });
+    } else {
+      // Duplicate solution
+      res.json({ success: true, isNew: false, message: 'Solution already submitted' });
+    }
+  } catch (error) {
+    console.error('Error saving submission:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Check if current user has solved a problem
+app.get('/api/problems/:slug/solved', optionalAuth, (req, res) => {
+  const { slug } = req.params;
+  
+  if (!req.user) {
+    return res.json({ solved: false, authenticated: false });
+  }
+  
+  const solved = hasUserSolvedProblem(req.user.id, slug);
+  const submissions = getUserSubmissions(req.user.id, slug);
+  
+  res.json({ 
+    solved, 
+    authenticated: true,
+    submissions
+  });
+});
+
+// Get leaderboard for a problem (requires user to have solved it)
+app.get('/api/problems/:slug/leaderboard', optionalAuth, (req, res) => {
+  const { slug } = req.params;
+  
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const solved = hasUserSolvedProblem(req.user.id, slug);
+  
+  if (!solved) {
+    return res.status(403).json({ 
+      error: 'You must solve this problem before viewing the leaderboard',
+      solved: false
+    });
+  }
+  
+  const leaderboard = getLeaderboard(slug);
+  
+  res.json({ 
+    leaderboard,
+    solved: true
+  });
 });
 
 // Initialize database then start server

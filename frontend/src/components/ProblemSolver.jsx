@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { createKeyboardHandler } from '../vendor/array-box/src/keymap.js';
 import { highlightCode } from '../vendor/array-box/src/syntax.js';
-import { runTests as runTestsAPI, fetchAvailableLanguages, formatUiua } from '../api.js';
+import { runTests as runTestsAPI, fetchAvailableLanguages, formatUiua, submitSolution, checkSolved } from '../api.js';
 
 // Language configuration
 const LANGUAGES = {
@@ -41,15 +42,23 @@ export default function ProblemSolver({ problem }) {
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmission, setIsSubmission] = useState(false);
   const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false });
+  const [hasSolved, setHasSolved] = useState(false);
+  const [submissionSaved, setSubmissionSaved] = useState(false);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
   const langConfig = LANGUAGES[language];
 
-  // Fetch available languages on mount
+  // Fetch available languages and check if user has solved this problem
   useEffect(() => {
     fetchAvailableLanguages().then(setAvailableLanguages);
-  }, []);
+    
+    if (problem?.slug) {
+      checkSolved(problem.slug).then(result => {
+        setHasSolved(result.solved);
+      });
+    }
+  }, [problem?.slug]);
 
   // Set up keyboard handler for array language input
   useEffect(() => {
@@ -151,8 +160,27 @@ export default function ProblemSolver({ problem }) {
 
     setIsRunning(true);
     setIsSubmission(fullSuite);
+    setSubmissionSaved(false);
 
     try {
+      // Format Uiua code before running
+      let codeToRun = code;
+      if (language === 'uiua' && code.trim()) {
+        try {
+          const formatResult = await formatUiua(code);
+          if (formatResult.success && formatResult.formatted !== code) {
+            codeToRun = formatResult.formatted;
+            // Update the input field and state with formatted code
+            if (inputRef.current) {
+              inputRef.current.value = formatResult.formatted;
+            }
+            setCode(formatResult.formatted);
+          }
+        } catch (e) {
+          // Ignore formatting errors, use original code
+        }
+      }
+
       // Get language-specific test cases
       const allTestCases = problem?.testCasesByLanguage?.[language] || problem?.testCases || [];
       
@@ -167,8 +195,20 @@ export default function ProblemSolver({ problem }) {
       }
 
       // Call backend API
-      const response = await runTestsAPI(language, code, testsToRun);
+      const response = await runTestsAPI(language, codeToRun, testsToRun);
       setResults(response.results);
+      
+      // If this is a submission and all tests passed, save the solution
+      if (fullSuite && response.allPassed) {
+        try {
+          await submitSolution(problem.slug, language, codeToRun, codeToRun.length);
+          setHasSolved(true);
+          setSubmissionSaved(true);
+        } catch (e) {
+          // Silently fail - user might not be logged in
+          console.log('Could not save submission:', e.message);
+        }
+      }
     } catch (e) {
       setResults([{ input: '', expected: '', actual: 'Error: ' + e.message, passed: false }]);
     } finally {
@@ -295,9 +335,15 @@ export default function ProblemSolver({ problem }) {
           >
             {isRunning && isSubmission ? 'Submitting...' : 'Submit'}
           </button>
-          <span className="text-gray-500 text-xs hidden sm:inline">
-            Ctrl+Enter test · Ctrl+Shift+Enter submit
-          </span>
+          {/* Show Leaderboard button when user has solved the problem */}
+          {hasSolved && (
+            <Link
+              to={`/problems/${problem.slug}/leaderboard`}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Leaderboard
+            </Link>
+          )}
         </div>
         <div className={`text-lg ${allPassed && isSubmission ? 'text-green-400' : 'text-gray-400'}`}>
           <span className="font-mono font-bold text-2xl">{codeLength}</span>

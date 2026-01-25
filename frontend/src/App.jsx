@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Problems from './pages/Problems';
 import ProblemDetail from './pages/ProblemDetail';
+import Leaderboard from './pages/Leaderboard';
 import Contests from './pages/Contests';
 import Profile from './pages/Profile';
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/problems" element={<Problems />} />
         <Route path="/problems/:slug" element={<ProblemDetail />} />
+        <Route path="/problems/:slug/leaderboard" element={<Leaderboard />} />
         <Route path="/contests" element={<Contests />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
