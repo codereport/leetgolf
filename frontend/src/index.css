@@ -33,6 +33,11 @@
 .syntax-modifier { color: var(--syntax-modifier); }
 .syntax-number { color: var(--syntax-number); }
 
+/* Default text color for array language fonts - ensures brackets etc are visible */
+.font-bqn, .font-apl, .font-uiua, .font-j {
+  color: var(--syntax-default);
+}
+
 /* Language-specific font classes */
 .font-bqn { font-family: 'BQN', 'Courier New', monospace; }
 .font-uiua { font-family: 'Uiua', 'Courier New', monospace; }

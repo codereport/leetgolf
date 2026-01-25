@@ -8,10 +8,9 @@ const STARTER_PROBLEMS = [
     id: 'starter-iota',
     slug: 'iota',
     title: 'Iota',
-    description: 'Generate a range of integers from 0 to n-1',
+    description: 'Generate a range of integers from 1 to n',
     difficulty: 'Easy',
     isStarter: true,
-    optimalLength: 1,
   }
 ];
 
@@ -66,27 +65,18 @@ export default function Problems() {
                 to={`/problems/${problem.slug}`}
                 className="block bg-gradient-to-r from-green-900/30 to-gray-800 border border-green-700/50 rounded-lg p-6 hover:border-green-500 transition group"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-semibold text-white group-hover:text-green-400 transition">
-                        {problem.title}
-                      </h2>
-                      <span className="text-xs uppercase tracking-wide bg-green-600 text-white px-2 py-0.5 rounded-full">
-                        Starter
-                      </span>
-                      <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
-                        {problem.difficulty}
-                      </span>
-                    </div>
-                    <p className="text-gray-400 text-sm mt-2">{problem.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-gray-500 text-xs uppercase tracking-wide">Optimal</div>
-                    <div className="text-green-400 font-mono font-bold text-xl">{problem.optimalLength}</div>
-                    <div className="text-gray-500 text-xs">char{problem.optimalLength !== 1 ? 's' : ''}</div>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-semibold text-white group-hover:text-green-400 transition">
+                    {problem.title}
+                  </h2>
+                  <span className="text-xs uppercase tracking-wide bg-green-600 text-white px-2 py-0.5 rounded-full">
+                    Starter
+                  </span>
+                  <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
+                    {problem.difficulty}
+                  </span>
                 </div>
+                <p className="text-gray-400 text-sm mt-2">{problem.description}</p>
               </Link>
             ))}
           </div>

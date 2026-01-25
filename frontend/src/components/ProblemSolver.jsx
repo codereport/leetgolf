@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createKeyboardHandler } from '../vendor/array-box/src/keymap.js';
 import { highlightCode } from '../vendor/array-box/src/syntax.js';
+import { runTests as runTestsAPI, fetchAvailableLanguages, formatUiua } from '../api.js';
 
 // Language configuration
 const LANGUAGES = {
@@ -39,10 +40,16 @@ export default function ProblemSolver({ problem }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmission, setIsSubmission] = useState(false);
+  const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false });
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
   const langConfig = LANGUAGES[language];
+
+  // Fetch available languages on mount
+  useEffect(() => {
+    fetchAvailableLanguages().then(setAvailableLanguages);
+  }, []);
 
   // Set up keyboard handler for array language input
   useEffect(() => {
@@ -53,6 +60,7 @@ export default function ProblemSolver({ problem }) {
   }, [language, langConfig.hasKeymap]);
 
   // Sync input value with state (needed because keyboard handler modifies DOM directly)
+  // Also handle Uiua formatting on blur
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
@@ -61,9 +69,28 @@ export default function ProblemSolver({ problem }) {
       setCode(input.value);
     };
 
+    // Format Uiua code when input loses focus
+    const handleBlur = async () => {
+      if (language === 'uiua' && input.value.trim()) {
+        try {
+          const result = await formatUiua(input.value);
+          if (result.success && result.formatted !== input.value) {
+            input.value = result.formatted;
+            setCode(result.formatted);
+          }
+        } catch (e) {
+          // Ignore formatting errors
+        }
+      }
+    };
+
     input.addEventListener('input', handleInput);
-    return () => input.removeEventListener('input', handleInput);
-  }, []);
+    input.addEventListener('blur', handleBlur);
+    return () => {
+      input.removeEventListener('input', handleInput);
+      input.removeEventListener('blur', handleBlur);
+    };
+  }, [language]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -110,43 +137,38 @@ export default function ProblemSolver({ problem }) {
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const runTests = (fullSuite = false) => {
-    // Currently only BQN is implemented
-    if (language !== 'bqn') {
-      setResults([{ input: '', expected: '', actual: `${langConfig.name} execution not yet implemented`, passed: false }]);
-      return;
-    }
-
-    if (!window.bqn || !window.fmt) {
-      setResults([{ input: '', expected: '', actual: 'Error: BQN engine not loaded', passed: false }]);
+  const runTests = async (fullSuite = false) => {
+    // Check if language is available on server
+    if (!availableLanguages[language]) {
+      setResults([{ 
+        input: '', 
+        expected: '', 
+        actual: `${langConfig.name} is not available on the server. Please ensure the interpreter is installed.`, 
+        passed: false 
+      }]);
       return;
     }
 
     setIsRunning(true);
+    setIsSubmission(fullSuite);
 
     try {
+      // Get language-specific test cases
+      const allTestCases = problem?.testCasesByLanguage?.[language] || problem?.testCases || [];
+      
       // Run only first 2 tests for "Run Tests", all tests for "Submit"
       const testsToRun = fullSuite 
-        ? (problem?.testCases || [])
-        : (problem?.testCases?.slice(0, 2) || []);
+        ? allTestCases
+        : allTestCases.slice(0, 2);
 
-      if (testsToRun.length > 0) {
-        const newResults = testsToRun.map(test => {
-          try {
-            // Run the code applied to the input
-            // Use braces to wrap as a function block if needed
-            const runExpr = `{${code} 𝕩} ${test.input}`;
-            const testRes = window.bqn(runExpr);
-            const formatted = window.fmt(testRes);
-            const passed = formatted === test.expected;
-            return { ...test, actual: formatted, passed };
-          } catch (e) {
-            return { ...test, actual: e.message, passed: false };
-          }
-        });
-        setResults(newResults);
-        setIsSubmission(fullSuite);
+      if (testsToRun.length === 0) {
+        setResults([{ input: '', expected: '', actual: 'No test cases available for this language', passed: false }]);
+        return;
       }
+
+      // Call backend API
+      const response = await runTestsAPI(language, code, testsToRun);
+      setResults(response.results);
     } catch (e) {
       setResults([{ input: '', expected: '', actual: 'Error: ' + e.message, passed: false }]);
     } finally {
@@ -168,7 +190,12 @@ export default function ProblemSolver({ problem }) {
 
   const codeLength = code.length;
   const allPassed = results && results.length > 0 && results.every(r => r.passed);
-  const totalTests = problem?.testCases?.length || 0;
+  // Get language-specific test cases and optimal length
+  const languageTestCases = problem?.testCasesByLanguage?.[language] || problem?.testCases || [];
+  const totalTests = languageTestCases.length;
+  const optimalLength = typeof problem?.optimalLength === 'object' 
+    ? problem.optimalLength[language] 
+    : problem?.optimalLength;
 
   return (
     <div className="space-y-4">
@@ -193,23 +220,29 @@ export default function ProblemSolver({ problem }) {
 
           {/* Dropdown */}
           {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-gray-800 border-2 border-gray-600 rounded-lg shadow-lg z-50 min-w-[140px]">
-              {LANGUAGE_ORDER.map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => switchLanguage(lang)}
-                  className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                    lang === language ? 'bg-gray-700' : ''
-                  }`}
-                >
-                  <img
-                    src={LANGUAGES[lang].logo}
-                    alt={LANGUAGES[lang].name}
-                    className="w-8 h-8 object-contain"
-                  />
-                  <span className="text-gray-200">{LANGUAGES[lang].name}</span>
-                </button>
-              ))}
+            <div className="absolute top-full left-0 mt-1 bg-gray-800 border-2 border-gray-600 rounded-lg shadow-lg z-50 min-w-[160px]">
+              {LANGUAGE_ORDER.map((lang) => {
+                const isAvailable = availableLanguages[lang];
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => switchLanguage(lang)}
+                    className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                      lang === language ? 'bg-gray-700' : ''
+                    } ${!isAvailable ? 'opacity-50' : ''}`}
+                  >
+                    <img
+                      src={LANGUAGES[lang].logo}
+                      alt={LANGUAGES[lang].name}
+                      className="w-8 h-8 object-contain"
+                    />
+                    <span className="text-gray-200">{LANGUAGES[lang].name}</span>
+                    {!isAvailable && (
+                      <span className="text-xs text-red-400 ml-auto" title="Not installed on server">✗</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -272,71 +305,92 @@ export default function ProblemSolver({ problem }) {
         </div>
       </div>
 
-      {/* Test Results */}
-      {results && (
-        <div className="space-y-2 mt-4">
-          {/* Header showing test mode */}
-          <div className="text-xs text-gray-500 uppercase tracking-wide">
-            {isSubmission ? `Submission (${results.length}/${totalTests} tests)` : 'Sample Tests'}
-          </div>
-
-          {results.map((res, i) => (
-            <div
-              key={i}
-              className={`p-4 rounded-lg border ${
-                res.passed
-                  ? 'bg-green-900/20 border-green-700/50'
-                  : 'bg-red-900/20 border-red-700/50'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div className={`font-mono ${langConfig.fontClass}`}>
-                  <span className="text-gray-500 text-sm">f </span>
-                  <span className="text-gray-300">{res.input}</span>
-                  <span className="text-gray-500 mx-2">→</span>
-                  <span className={res.passed ? 'text-green-300' : 'text-red-300'}>
-                    {res.actual}
-                  </span>
-                </div>
-                <span className={`text-sm font-medium ${res.passed ? 'text-green-400' : 'text-red-400'}`}>
-                  {res.passed ? '✓' : '✗'}
-                </span>
+      {/* Tests Section */}
+      <div className="space-y-2 mt-4">
+        {/* Success message for submission - don't show individual tests */}
+        {results && allPassed && isSubmission ? (
+          <div className="p-4 rounded-lg bg-green-900/30 border border-green-600 text-center">
+            <span className="text-green-400 font-medium">
+              All {totalTests} tests passed! Your score: <span className="font-mono font-bold text-xl">{codeLength}</span> chars
+            </span>
+            {optimalLength && codeLength > optimalLength && (
+              <div className="text-green-300/60 text-sm mt-1">
+                Optimal solution is {optimalLength} char{optimalLength !== 1 ? 's' : ''}
               </div>
-              {!res.passed && (
-                <div className={`mt-2 text-sm font-mono ${langConfig.fontClass} text-gray-400`}>
-                  expected: {res.expected}
-                </div>
-              )}
+            )}
+            {optimalLength && codeLength === optimalLength && (
+              <div className="text-yellow-400 text-sm mt-1">
+                Perfect! You found the optimal solution!
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              {results && isSubmission 
+                ? `Submission (${results.filter(r => r.passed).length}/${totalTests} passed)` 
+                : 'Tests'}
             </div>
-          ))}
 
-          {/* Success message */}
-          {allPassed && isSubmission && (
-            <div className="p-4 rounded-lg bg-green-900/30 border border-green-600 text-center">
-              <span className="text-green-400 font-medium">
-                All tests passed! Your score: <span className="font-mono font-bold text-xl">{codeLength}</span> chars
-              </span>
-              {problem.optimalLength && codeLength > problem.optimalLength && (
-                <div className="text-green-300/60 text-sm mt-1">
-                  Optimal solution is {problem.optimalLength} char{problem.optimalLength !== 1 ? 's' : ''}
+            {/* Show results if we have them, otherwise show default test cases */}
+            {results ? (
+              // After running tests - show with pass/fail colors
+              results.map((res, i) => (
+                <div
+                  key={i}
+                  className={`p-4 rounded-lg border ${
+                    res.passed
+                      ? 'bg-green-900/20 border-green-700/50'
+                      : 'bg-red-900/20 border-red-700/50'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className={`font-mono ${langConfig.fontClass} text-gray-200`}>
+                      <span className="text-gray-500 text-sm">f </span>
+                      <span className="text-gray-200">{res.input}</span>
+                      <span className="text-gray-500 mx-2">→</span>
+                      <span className={res.passed ? 'text-green-300' : 'text-red-300'}>
+                        {res.actual}
+                      </span>
+                    </div>
+                    <span className={`text-sm font-medium ${res.passed ? 'text-green-400' : 'text-red-400'}`}>
+                      {res.passed ? '✓' : '✗'}
+                    </span>
+                  </div>
+                  {!res.passed && (
+                    <div className={`mt-2 text-sm font-mono ${langConfig.fontClass} text-gray-400`}>
+                      expected: <span className="text-gray-200">{res.expected}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-              {problem.optimalLength && codeLength === problem.optimalLength && (
-                <div className="text-yellow-400 text-sm mt-1">
-                  Perfect! You found the optimal solution!
+              ))
+            ) : (
+              // Default view - show first 2 test cases without colors
+              languageTestCases.slice(0, 2).map((test, i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-lg border border-gray-700 bg-gray-800"
+                >
+                  <div className={`font-mono ${langConfig.fontClass} text-gray-200`}>
+                    <span className="text-gray-500 text-sm">f </span>
+                    <span className="text-gray-200">{test.input}</span>
+                    <span className="text-gray-500 mx-2">→</span>
+                    <span className="text-green-400">{test.expected}</span>
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
+              ))
+            )}
 
-          {/* Prompt to submit if sample tests pass */}
-          {allPassed && !isSubmission && (
-            <div className="p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-center text-sm text-blue-300">
-              Sample tests passed! Click <strong>Submit</strong> to run the full test suite.
-            </div>
-          )}
-        </div>
-      )}
+            {/* Prompt to submit if sample tests pass */}
+            {results && allPassed && !isSubmission && (
+              <div className="p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-center text-sm text-blue-300">
+                Tests passed! Click <strong>Submit</strong> to run the full test suite.
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

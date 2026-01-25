@@ -4,26 +4,50 @@ import { fetchProblem } from '../api';
 import ProblemSolver from '../components/ProblemSolver';
 
 // Hardcoded starter problems (will be replaced by backend later)
+// Each language has its own expected output format
 const STARTER_PROBLEMS = {
   'iota': {
     title: 'Iota',
     slug: 'iota',
     description: 'Given a positive integer n, return an array containing the integers from 1 to n.',
     isStarter: true,
-    // Examples shown to user (display format)
-    examples: [
-      { input: '3', output: '1 2 3' },
-      { input: '5', output: '1 2 3 4 5' },
-    ],
-    // Test cases for execution (BQN format with brackets)
-    testCases: [
-      { input: '3', expected: '⟨ 1 2 3 ⟩' },
-      { input: '5', expected: '⟨ 1 2 3 4 5 ⟩' },
-      { input: '1', expected: '⟨ 1 ⟩' },
-      { input: '10', expected: '⟨ 1 2 3 4 5 6 7 8 9 10 ⟩' },
-      { input: '7', expected: '⟨ 1 2 3 4 5 6 7 ⟩' },
-    ],
-    optimalLength: 3, // The optimal BQN solution is "1+↕" (3 chars)
+    // Test cases per language - each language has different output format
+    testCasesByLanguage: {
+      bqn: [
+        { input: '3', expected: '⟨ 1 2 3 ⟩' },
+        { input: '5', expected: '⟨ 1 2 3 4 5 ⟩' },
+        { input: '1', expected: '⟨ 1 ⟩' },
+        { input: '10', expected: '⟨ 1 2 3 4 5 6 7 8 9 10 ⟩' },
+        { input: '7', expected: '⟨ 1 2 3 4 5 6 7 ⟩' },
+      ],
+      apl: [
+        { input: '3', expected: '1 2 3' },
+        { input: '5', expected: '1 2 3 4 5' },
+        { input: '1', expected: '1' },
+        { input: '10', expected: '1 2 3 4 5 6 7 8 9 10' },
+        { input: '7', expected: '1 2 3 4 5 6 7' },
+      ],
+      j: [
+        { input: '3', expected: '1 2 3' },
+        { input: '5', expected: '1 2 3 4 5' },
+        { input: '1', expected: '1' },
+        { input: '10', expected: '1 2 3 4 5 6 7 8 9 10' },
+        { input: '7', expected: '1 2 3 4 5 6 7' },
+      ],
+      uiua: [
+        { input: '3', expected: '[1 2 3]' },
+        { input: '5', expected: '[1 2 3 4 5]' },
+        { input: '1', expected: '[1]' },
+        { input: '10', expected: '[1 2 3 4 5 6 7 8 9 10]' },
+        { input: '7', expected: '[1 2 3 4 5 6 7]' },
+      ],
+    },
+    optimalLength: {
+      bqn: 3,  // "1+↕"
+      apl: 3,  // "⍳⊢" or "⎕io←1"
+      j: 5,    // ">:i."
+      uiua: 4, // "+1⇡"
+    },
   }
 };
 
@@ -49,14 +73,12 @@ export default function ProblemDetail() {
       .then((data) => {
         if (!isMounted) return;
         const p = data.problem;
-        const testCases = (data.test_cases || []).map(tc => ({
-          input: tc.input,
-          expected: tc.expected_output
-        }));
+        // Backend returns test cases per language
+        const testCasesByLanguage = data.test_cases_by_language || {};
         setProblem({
           ...p,
           isStarter: p.is_starter,
-          testCases
+          testCasesByLanguage,
         });
         setLoading(false);
       })
@@ -70,9 +92,6 @@ export default function ProblemDetail() {
       isMounted = false;
     };
   }, [slug]);
-
-  // Get examples for display
-  const examples = problem?.examples || [];
 
   return (
     <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12">
@@ -110,28 +129,6 @@ export default function ProblemDetail() {
 
             {/* Code Editor (array-box style) */}
             <ProblemSolver problem={problem} />
-
-            {/* Examples */}
-            {examples.length > 0 && (
-              <div>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Examples
-                </h2>
-                <div className="space-y-2">
-                  {examples.map((ex, i) => (
-                    <div
-                      key={i}
-                      className="bg-gray-800 rounded-lg p-4 border border-gray-700 font-mono"
-                    >
-                      <span className="text-gray-500">f </span>
-                      <span className="text-gray-300">{ex.input}</span>
-                      <span className="text-gray-500 mx-3">→</span>
-                      <span className="text-green-400">{ex.output}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
