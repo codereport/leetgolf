@@ -1,7 +1,10 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function Navbar({ user }) {
   const location = useLocation();
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
   
   // Don't show navbar on landing page
   if (location.pathname === '/') {
@@ -11,8 +14,25 @@ export default function Navbar({ user }) {
   const navLinks = [
     { to: '/problems', label: 'Problems' },
     { to: '/contests', label: 'Contests' },
-    { to: '/profile', label: 'Profile' },
   ];
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close menu on route change
+  useEffect(() => {
+    setShowMenu(false);
+  }, [location.pathname]);
+
+  const GITHUB_ISSUES_URL = 'https://github.com/codereport/leetgolf/issues';
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-gray-800 border-b border-gray-700 z-50">
@@ -37,11 +57,45 @@ export default function Navbar({ user }) {
           ))}
           
           {user && (
-            <img
-              src={user.avatar_url}
-              alt={user.username}
-              className="w-8 h-8 rounded-full border-2 border-gray-600"
-            />
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="focus:outline-none focus:ring-2 focus:ring-green-400 rounded-full"
+              >
+                <img
+                  src={user.avatar_url}
+                  alt={user.username}
+                  className="w-8 h-8 rounded-full border-2 border-gray-600 hover:border-green-400 transition-colors cursor-pointer"
+                />
+              </button>
+              
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-1 z-50">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  >
+                    Profile
+                  </Link>
+                  <a
+                    href={GITHUB_ISSUES_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  >
+                    Report Bug / Issue
+                  </a>
+                  <a
+                    href={GITHUB_ISSUES_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  >
+                    Request Feature
+                  </a>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

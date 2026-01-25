@@ -262,4 +262,36 @@ export function getUserSubmissions(userId, problemSlug) {
   return results;
 }
 
+/**
+ * Get user stats: problems solved count and total submissions count
+ */
+export function getUserStats(userId) {
+  // Count distinct problems solved
+  const problemsStmt = db.prepare(
+    'SELECT COUNT(DISTINCT problem_slug) as problems_solved FROM submissions WHERE user_id = ?'
+  );
+  problemsStmt.bind([userId]);
+  let problemsSolved = 0;
+  if (problemsStmt.step()) {
+    problemsSolved = problemsStmt.getAsObject().problems_solved;
+  }
+  problemsStmt.free();
+  
+  // Count total submissions
+  const submissionsStmt = db.prepare(
+    'SELECT COUNT(*) as total_submissions FROM submissions WHERE user_id = ?'
+  );
+  submissionsStmt.bind([userId]);
+  let totalSubmissions = 0;
+  if (submissionsStmt.step()) {
+    totalSubmissions = submissionsStmt.getAsObject().total_submissions;
+  }
+  submissionsStmt.free();
+  
+  return {
+    problemsSolved,
+    totalSubmissions
+  };
+}
+
 export { db };

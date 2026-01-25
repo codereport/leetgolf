@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { findUserByGithubId, createUser, findUserById } from './db.js';
+import { findUserByGithubId, createUser, findUserById, getUserStats } from './db.js';
 
 const router = Router();
 
@@ -87,7 +87,14 @@ router.get('/github/callback', async (req, res) => {
 
 // Get current user
 router.get('/me', authenticateToken, (req, res) => {
-  res.json({ user: req.user });
+  const stats = getUserStats(req.user.id);
+  res.json({ 
+    user: {
+      ...req.user,
+      problemsSolved: stats.problemsSolved,
+      totalSubmissions: stats.totalSubmissions
+    }
+  });
 });
 
 // Logout
