@@ -11,12 +11,14 @@ const LANGUAGES = {
     logo: '/logos/bqn.svg',
     fontClass: 'font-bqn',
     hasKeymap: true,
+    keymapLang: 'bqn',
   },
   apl: {
     name: 'APL',
     logo: '/logos/apl.png',
     fontClass: 'font-apl',
     hasKeymap: true,
+    keymapLang: 'apl',
   },
   j: {
     name: 'J',
@@ -30,9 +32,16 @@ const LANGUAGES = {
     fontClass: 'font-uiua',
     hasKeymap: false,
   },
+  kap: {
+    name: 'Kap',
+    logo: '/logos/kap.png',
+    fontClass: 'font-kap',
+    hasKeymap: true,
+    keymapLang: 'apl', // Kap uses APL-style backtick prefix keymap
+  },
 };
 
-const LANGUAGE_ORDER = ['bqn', 'apl', 'j', 'uiua'];
+const LANGUAGE_ORDER = ['bqn', 'apl', 'j', 'uiua', 'kap'];
 
 export default function ProblemSolver({ problem }) {
   const [language, setLanguage] = useState('bqn');
@@ -41,7 +50,7 @@ export default function ProblemSolver({ problem }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmission, setIsSubmission] = useState(false);
-  const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false });
+  const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false, kap: false });
   const [hasSolved, setHasSolved] = useState(false);
   const [submissionSaved, setSubmissionSaved] = useState(false);
   const inputRef = useRef(null);
@@ -63,10 +72,12 @@ export default function ProblemSolver({ problem }) {
   // Set up keyboard handler for array language input
   useEffect(() => {
     if (inputRef.current && langConfig.hasKeymap) {
-      const cleanup = createKeyboardHandler(inputRef.current, language);
+      // Use keymapLang if specified (e.g., Kap uses APL keymap)
+      const keymapLang = langConfig.keymapLang || language;
+      const cleanup = createKeyboardHandler(inputRef.current, keymapLang);
       return cleanup;
     }
-  }, [language, langConfig.hasKeymap]);
+  }, [language, langConfig.hasKeymap, langConfig.keymapLang]);
 
   // Sync input value with state (needed because keyboard handler modifies DOM directly)
   // Also handle Uiua formatting on blur

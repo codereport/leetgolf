@@ -41,12 +41,20 @@ const STARTER_PROBLEMS = {
         { input: '10', expected: '[1 2 3 4 5 6 7 8 9 10]' },
         { input: '7', expected: '[1 2 3 4 5 6 7]' },
       ],
+      kap: [
+        { input: '3', expected: '1 2 3' },
+        { input: '5', expected: '1 2 3 4 5' },
+        { input: '1', expected: '1' },
+        { input: '10', expected: '1 2 3 4 5 6 7 8 9 10' },
+        { input: '7', expected: '1 2 3 4 5 6 7' },
+      ],
     },
     optimalLength: {
       bqn: 3,  // "1+↕"
       apl: 1,  // "⍳"
       j: 4,    // ">:i."
       uiua: 3, // "+1⇡"
+      kap: 1,  // "⍳"
     },
   },
   'iota-rotate': {
@@ -84,12 +92,20 @@ const STARTER_PROBLEMS = {
         { input: '8 3', expected: '[4 5 6 7 8 1 2 3]' },
         { input: '10 5', expected: '[6 7 8 9 10 1 2 3 4 5]' },
       ],
+      kap: [
+        { input: '5', expected: '3 4 5 1 2', leftArg: '2' },
+        { input: '6', expected: '5 6 1 2 3 4', leftArg: '4' },
+        { input: '4', expected: '2 3 4 1', leftArg: '1' },
+        { input: '8', expected: '4 5 6 7 8 1 2 3', leftArg: '3' },
+        { input: '10', expected: '6 7 8 9 10 1 2 3 4 5', leftArg: '5' },
+      ],
     },
     optimalLength: {
       bqn: 4,  // "⌽1+↕" 
       apl: 3,  // "⌽⍳"
       j: 6,    // "|.>:i."
       uiua: 4, // "↻+1⇡"
+      kap: 3,  // "⌽⍳"
     },
   },
   'iota-hill': {
@@ -126,12 +142,20 @@ const STARTER_PROBLEMS = {
         { input: '4', expected: '[1 2 3 4 4 3 2 1]' },
         { input: '7', expected: '[1 2 3 4 5 6 7 7 6 5 4 3 2 1]' },
       ],
+      kap: [
+        { input: '3', expected: '1 2 3 3 2 1' },
+        { input: '5', expected: '1 2 3 4 5 5 4 3 2 1' },
+        { input: '1', expected: '1 1' },
+        { input: '4', expected: '1 2 3 4 4 3 2 1' },
+        { input: '7', expected: '1 2 3 4 5 6 7 7 6 5 4 3 2 1' },
+      ],
     },
     optimalLength: {
       bqn: 7,  // "(⊢∾⌽)1+↕"
       apl: 5,  // "(⊢,⌽)⍳"
       j: 8,    // "(,|.)>:i."
       uiua: 6, // "⊂⇌.+1⇡"
+      kap: 5,  // "(⊢,⌽)⍳"
     },
   }
 };

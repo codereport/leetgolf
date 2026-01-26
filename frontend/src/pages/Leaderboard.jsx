@@ -9,6 +9,7 @@ const LANGUAGE_LOGOS = {
   apl: '/logos/apl.png',
   j: '/logos/j_logo.png',
   uiua: '/logos/uiua.png',
+  kap: '/logos/kap.png',
 };
 
 // Language font classes
@@ -17,6 +18,7 @@ const LANGUAGE_FONTS = {
   apl: 'font-apl',
   j: 'font-j',
   uiua: 'font-uiua',
+  kap: 'font-kap',
 };
 
 export default function Leaderboard() {

@@ -34,7 +34,7 @@
 .syntax-number { color: var(--syntax-number); }
 
 /* Default text color for array language fonts - ensures brackets etc are visible */
-.font-bqn, .font-apl, .font-uiua, .font-j {
+.font-bqn, .font-apl, .font-uiua, .font-j, .font-kap {
   color: var(--syntax-default);
 }
 
@@ -43,6 +43,7 @@
 .font-uiua { font-family: 'Uiua', 'Courier New', monospace; }
 .font-apl { font-family: 'APL', 'Courier New', monospace; }
 .font-j { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+.font-kap { font-family: 'APL', 'Courier New', monospace; } /* Kap uses APL-style characters */
 
 body {
   margin: 0;

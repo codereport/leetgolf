@@ -55,9 +55,9 @@ app.post('/api/run-tests', async (req, res) => {
       });
     }
     
-    if (!['bqn', 'uiua', 'j', 'apl'].includes(language)) {
+    if (!['bqn', 'uiua', 'j', 'apl', 'kap'].includes(language)) {
       return res.status(400).json({ 
-        error: `Invalid language: ${language}. Must be one of: bqn, uiua, j, apl` 
+        error: `Invalid language: ${language}. Must be one of: bqn, uiua, j, apl, kap` 
       });
     }
     
@@ -112,9 +112,9 @@ app.post('/api/run', async (req, res) => {
       });
     }
     
-    if (!['bqn', 'uiua', 'j', 'apl'].includes(language)) {
+    if (!['bqn', 'uiua', 'j', 'apl', 'kap'].includes(language)) {
       return res.status(400).json({ 
-        error: `Invalid language: ${language}. Must be one of: bqn, uiua, j, apl` 
+        error: `Invalid language: ${language}. Must be one of: bqn, uiua, j, apl, kap` 
       });
     }
     
@@ -142,7 +142,7 @@ app.post('/api/submissions', authenticateToken, (req, res) => {
       });
     }
     
-    if (!['bqn', 'uiua', 'j', 'apl'].includes(language)) {
+    if (!['bqn', 'uiua', 'j', 'apl', 'kap'].includes(language)) {
       return res.status(400).json({ 
         error: `Invalid language: ${language}` 
       });

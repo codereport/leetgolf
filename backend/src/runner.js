@@ -377,6 +377,146 @@ async function runAPL(code, input, leftArg = null) {
 }
 
 // ============================================================================
+// Kap Runner (using kap-jvm)
+// ============================================================================
+function findKapExecutable() {
+  const candidates = [
+    'kap-jvm',
+    join(process.env.HOME || '', 'Downloads/kap-jvm-build-linux/gui/bin/kap-jvm'),
+    join(process.env.HOME || '', 'kap/gui/bin/kap-jvm'),
+    '/usr/local/bin/kap-jvm',
+    '/usr/bin/kap-jvm',
+  ];
+  
+  for (const cmd of candidates) {
+    try {
+      execSync(`"${cmd}" --help`, { timeout: 5000, stdio: 'ignore' });
+      return cmd;
+    } catch (e) {
+      // Try next
+    }
+  }
+  return null;
+}
+
+let kapExecutable = null;
+
+async function runKap(code, input, leftArg = null) {
+  if (!kapExecutable) {
+    kapExecutable = findKapExecutable();
+  }
+  
+  if (!kapExecutable) {
+    return { success: false, output: 'Kap interpreter not found on server' };
+  }
+  
+  return new Promise((resolve) => {
+    // Kap: apply the function to input
+    // Run code normally and parse the boxed output
+    // For dyadic: leftArg (code) input
+    // For monadic: (code) input
+    let fullCode;
+    if (leftArg !== null) {
+      fullCode = `${leftArg} (${code}) ${input}`;
+    } else {
+      fullCode = `(${code}) ${input}`;
+    }
+    
+    // Use TTY mode with no line editor for clean stdin/stdout
+    const proc = spawn(kapExecutable, ['--tty', '--no-lineeditor'], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, DISPLAY: '' }
+    });
+    
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    
+    proc.stdout.on('data', (data) => { stdout += data.toString(); });
+    proc.stderr.on('data', (data) => { stderr += data.toString(); });
+    
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      proc.kill('SIGTERM');
+      resolve({ success: false, output: 'Execution timed out' });
+    }, EXEC_TIMEOUT);
+    
+    proc.on('close', (exitCode) => {
+      clearTimeout(timeout);
+      if (timedOut) return;
+      
+      // Parse output - Kap prefixes results with "⊢ "
+      let output = stdout.trim();
+      
+      // Split by lines and filter out empty prompts
+      let lines = output.split('\n');
+      lines = lines.filter(line => line.trim() !== '⊢');
+      
+      // Remove the ⊢ prefix from result lines
+      let result = lines.map(line => {
+        if (line.startsWith('⊢ ')) {
+          return line.substring(2);
+        }
+        return line;
+      }).join('\n').trim();
+      
+      // Check for errors
+      const isError = result.includes('Error at:') || 
+                     result.includes('Error:') ||
+                     stderr.includes('Error');
+      
+      // Filter out JLine warnings from stderr
+      const filteredStderr = stderr.split('\n')
+        .filter(line => !line.includes('WARNING:') && !line.includes('jline'))
+        .join('\n').trim();
+      
+      if (filteredStderr) {
+        resolve({ success: false, output: filteredStderr });
+      } else if (isError) {
+        resolve({ success: false, output: result });
+      } else {
+        // Parse Kap's boxed output to extract clean values
+        // Boxed format can be multi-line or single-line (newlines as spaces):
+        //   ┌→────┐ │1 2 3│ └─────┘
+        // For scalars, just the value without box
+        let cleanResult = result;
+        
+        // Check if it's boxed output (contains │)
+        if (result.includes('│')) {
+          // Extract all content between │ characters
+          // Match all occurrences of │...│ and extract the content
+          const matches = result.match(/│([^│]*)│/g);
+          if (matches) {
+            cleanResult = matches
+              .map(m => {
+                // Remove the │ characters and trim
+                const content = m.slice(1, -1).trim();
+                return content;
+              })
+              // Filter out empty strings and box drawing chars
+              .filter(s => s && !s.match(/^[┌┐└┘─→↓]+$/))
+              .join('\n');
+          }
+        }
+        
+        resolve({ success: true, output: cleanResult });
+      }
+    });
+    
+    proc.on('error', (err) => {
+      clearTimeout(timeout);
+      if (!timedOut) {
+        resolve({ success: false, output: err.message });
+      }
+    });
+    
+    // Send code and close stdin
+    proc.stdin.write(fullCode + '\n');
+    proc.stdin.end();
+  });
+}
+
+// ============================================================================
 // Main Runner Interface
 // ============================================================================
 const runners = {
@@ -384,6 +524,7 @@ const runners = {
   uiua: runUiua,
   j: runJ,
   apl: runAPL,
+  kap: runKap,
 };
 
 /**
@@ -441,6 +582,7 @@ export function getAvailableLanguages() {
     uiua: !!findUiuaExecutable(),
     j: !!findJExecutable(),
     apl: !!findAPLExecutable(),
+    kap: !!findKapExecutable(),
   };
 }
 
