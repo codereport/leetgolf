@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { logout } from '../api';
 
 export default function Navbar({ user }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   
@@ -36,7 +38,7 @@ export default function Navbar({ user }) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-gray-800 border-b border-gray-700 z-50">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-4xl mx-auto px-0 h-16 flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-white">
           Leet<span className="text-green-400">Golf</span>
         </Link>
@@ -93,6 +95,18 @@ export default function Navbar({ user }) {
                   >
                     Request Feature
                   </a>
+                  <div className="border-t border-gray-700 my-1"></div>
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      setShowMenu(false);
+                      navigate('/');
+                      window.location.reload();
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>

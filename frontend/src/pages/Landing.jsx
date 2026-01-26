@@ -29,8 +29,9 @@ export default function Landing() {
         </a>
       </div>
       
-      <div className="absolute bottom-8 text-gray-500 text-sm">
-        Every character counts.
+      <div className="absolute bottom-8 text-center">
+        <div className="text-gray-500 text-sm">Every character counts.</div>
+        <div className="text-gray-600 text-xs mt-1">beta - under construction</div>
       </div>
     </div>
   );

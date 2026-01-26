@@ -359,11 +359,6 @@ export default function ProblemSolver({ problem }) {
             <span className="text-green-400 font-medium">
               All {totalTests} tests passed! Your score: <span className="font-mono font-bold text-xl">{codeLength}</span> chars
             </span>
-            {optimalLength && codeLength > optimalLength && (
-              <div className="text-green-300/60 text-sm mt-1">
-                Optimal solution is {optimalLength} char{optimalLength !== 1 ? 's' : ''}
-              </div>
-            )}
             {optimalLength && codeLength === optimalLength && (
               <div className="text-yellow-400 text-sm mt-1">
                 Perfect! You found the optimal solution!

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { initDatabase, saveSubmission, hasUserSolvedProblem, getLeaderboard, getUserSubmissions } from './db.js';
+import { initDatabase, saveSubmission, hasUserSolvedProblem, getLeaderboard, getUserSubmissions, getAllUserBestSubmissions } from './db.js';
 import { authRouter, authenticateToken, optionalAuth } from './auth.js';
 import { runTests, runCode, getAvailableLanguages, formatUiuaCode } from './runner.js';
 
@@ -178,6 +178,17 @@ app.get('/api/problems/:slug/solved', optionalAuth, (req, res) => {
     authenticated: true,
     submissions
   });
+});
+
+// Get all user's best submissions (for profile page)
+app.get('/api/user/submissions', authenticateToken, (req, res) => {
+  try {
+    const submissions = getAllUserBestSubmissions(req.user.id);
+    res.json({ submissions });
+  } catch (error) {
+    console.error('Error fetching user submissions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Get leaderboard for a problem (requires user to have solved it)

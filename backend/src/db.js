@@ -263,6 +263,65 @@ export function getUserSubmissions(userId, problemSlug) {
 }
 
 /**
+ * Get all of a user's best submissions (best per problem/language combo)
+ * Returns problem name, language, char count, date, and rank
+ */
+export function getAllUserBestSubmissions(userId) {
+  // Get user's best submission for each problem/language combo
+  const stmt = db.prepare(`
+    SELECT 
+      s.problem_slug,
+      s.language,
+      s.char_count,
+      s.solution,
+      s.submitted_at
+    FROM submissions s
+    WHERE s.user_id = ?
+    AND s.char_count = (
+      SELECT MIN(s2.char_count)
+      FROM submissions s2
+      WHERE s2.user_id = s.user_id
+        AND s2.problem_slug = s.problem_slug
+        AND s2.language = s.language
+    )
+    ORDER BY s.submitted_at DESC
+    LIMIT 10
+  `);
+  stmt.bind([userId]);
+  
+  const results = [];
+  while (stmt.step()) {
+    const row = stmt.getAsObject();
+    
+    // Calculate rank: count users with a better (lower) best score for this problem/language
+    const rankStmt = db.prepare(`
+      SELECT COUNT(*) + 1 as rank
+      FROM (
+        SELECT user_id, MIN(char_count) as best_score
+        FROM submissions
+        WHERE problem_slug = ? AND language = ?
+        GROUP BY user_id
+        HAVING best_score < ?
+      )
+    `);
+    rankStmt.bind([row.problem_slug, row.language, row.char_count]);
+    
+    let rank = 1;
+    if (rankStmt.step()) {
+      rank = rankStmt.getAsObject().rank;
+    }
+    rankStmt.free();
+    
+    results.push({
+      ...row,
+      rank
+    });
+  }
+  stmt.free();
+  return results;
+}
+
+/**
  * Get user stats: problems solved count and total submissions count
  */
 export function getUserStats(userId) {

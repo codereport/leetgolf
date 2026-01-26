@@ -223,3 +223,20 @@ export async function getLeaderboard(problemSlug) {
   
   return await response.json();
 }
+
+/**
+ * Get current user's best submissions (for profile page)
+ * @returns {Promise<{submissions: Array<{problem_slug, language, char_count, submitted_at, rank}>}>}
+ */
+export async function getUserSubmissions() {
+  const response = await fetch(`${API_URL}/api/user/submissions`, {
+    credentials: 'include',
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Server error' }));
+    throw new Error(error.error || 'Failed to get submissions');
+  }
+  
+  return await response.json();
+}
