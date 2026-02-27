@@ -27,6 +27,14 @@ const STARTER_PROBLEMS = [
     description: 'Concatenate a range with its reverse',
     difficulty: 'Easy',
     isStarter: true,
+  },
+  {
+    id: 'starter-echo-chamber',
+    slug: 'echo-chamber',
+    title: 'Echo Chamber',
+    description: 'Repeat each character by its 1-based index position',
+    difficulty: 'Easy',
+    isStarter: true,
   }
 ];
 

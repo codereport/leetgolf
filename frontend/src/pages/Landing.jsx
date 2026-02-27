@@ -8,7 +8,7 @@ export default function Landing() {
           Leet<span className="text-green-400">Golf</span>
         </h1>
         <p className="text-gray-400 text-xl mb-8">
-          Five array languages. How will you rank?
+          Six array languages. How will you rank?
         </p>
         
         <div className="flex items-center justify-center gap-6 mb-12">
@@ -17,6 +17,7 @@ export default function Landing() {
           <img src="/logos/j_logo.png" alt="J" className="h-12 w-12 object-contain" title="J" />
           <img src="/logos/uiua.png" alt="Uiua" className="h-12 w-12 object-contain" title="Uiua" />
           <img src="/logos/kap.png" alt="Kap" className="h-12 w-12 object-contain" title="Kap" />
+          <img src="/logos/tinyapl.svg" alt="TinyAPL" className="h-12 w-12 object-contain" title="TinyAPL" />
         </div>
         
         <a

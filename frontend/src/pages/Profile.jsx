@@ -9,6 +9,7 @@ const LANGUAGE_LOGOS = {
   j: '/logos/j_logo.png',
   uiua: '/logos/uiua.png',
   kap: '/logos/kap.png',
+  tinyapl: '/logos/tinyapl.svg',
 };
 
 const LANGUAGE_NAMES = {
@@ -17,6 +18,7 @@ const LANGUAGE_NAMES = {
   j: 'J',
   uiua: 'Uiua',
   kap: 'Kap',
+  tinyapl: 'TinyAPL',
 };
 
 const LANGUAGE_FONTS = {
@@ -25,6 +27,7 @@ const LANGUAGE_FONTS = {
   j: 'font-j',
   uiua: 'font-uiua',
   kap: 'font-kap',
+  tinyapl: 'font-tinyapl',
 };
 
 export default function Profile() {
@@ -158,12 +161,6 @@ export default function Profile() {
                     </th>
                     <th 
                       className="px-4 py-3 font-medium cursor-pointer hover:text-white transition-colors"
-                      onClick={() => handleSort('rank')}
-                    >
-                      Rank<SortIcon field="rank" />
-                    </th>
-                    <th 
-                      className="px-4 py-3 font-medium cursor-pointer hover:text-white transition-colors"
                       onClick={() => handleSort('submitted_at')}
                     >
                       Date<SortIcon field="submitted_at" />
@@ -200,15 +197,6 @@ export default function Profile() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-mono text-green-400 text-sm">{sub.char_count}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`font-medium text-sm ${
-                          sub.rank === 1 ? 'text-yellow-400' : 
-                          sub.rank === 2 ? 'text-gray-300' : 
-                          sub.rank === 3 ? 'text-orange-400' : 'text-gray-400'
-                        }`}>
-                          #{sub.rank}
-                        </span>
                       </td>
                       <td className="px-4 py-3 text-gray-400 text-sm">
                         {new Date(sub.submitted_at).toLocaleDateString()}

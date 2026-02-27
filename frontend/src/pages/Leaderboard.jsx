@@ -3,22 +3,22 @@ import { Link, useParams } from 'react-router-dom';
 import { getLeaderboard } from '../api';
 import { highlightCode } from '../vendor/array-box/src/syntax.js';
 
-// Language logos for display
 const LANGUAGE_LOGOS = {
   bqn: '/logos/bqn.svg',
   apl: '/logos/apl.png',
   j: '/logos/j_logo.png',
   uiua: '/logos/uiua.png',
   kap: '/logos/kap.png',
+  tinyapl: '/logos/tinyapl.svg',
 };
 
-// Language font classes
 const LANGUAGE_FONTS = {
   bqn: 'font-bqn',
   apl: 'font-apl',
   j: 'font-j',
   uiua: 'font-uiua',
   kap: 'font-kap',
+  tinyapl: 'font-tinyapl',
 };
 
 export default function Leaderboard() {

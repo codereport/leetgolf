@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "setup": "mkdir -p public/vendor/array-box && cp -r src/vendor/array-box/fonts public/vendor/array-box/",
+    "setup": "mkdir -p public/vendor/array-box && cp -r src/vendor/array-box/fonts public/vendor/array-box/ && cp -r src/vendor/array-box/wasm public/vendor/array-box/",
     "predev": "npm run setup",
     "dev": "vite",
     "prebuild": "npm run setup",

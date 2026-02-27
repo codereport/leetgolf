@@ -83,8 +83,7 @@ export async function fetchAvailableLanguages() {
     return await response.json();
   } catch (error) {
     console.error('Failed to fetch languages:', error);
-    // Return default (only BQN is guaranteed)
-    return { bqn: true, uiua: false, j: false, apl: false };
+    return { bqn: true, uiua: false, j: false, apl: false, kap: false, tinyapl: false };
   }
 }
 

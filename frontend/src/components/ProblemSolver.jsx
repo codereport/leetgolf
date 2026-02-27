@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { createKeyboardHandler } from '../vendor/array-box/src/keymap.js';
-import { highlightCode } from '../vendor/array-box/src/syntax.js';
+import { createKeyboardHandler, insertText, bqnKeymap, aplKeymap, kapKeymap, tinyaplKeymap, tinyaplKeyboard, uiuaGlyphs, jGlyphs } from '../vendor/array-box/src/keymap.js';
+import { highlightCode, syntaxRules } from '../vendor/array-box/src/syntax.js';
+import { ArrayKeyboard, bqnGlyphNames, aplGlyphNames, kapGlyphNames, tinyaplGlyphNames, jGlyphNames, uiuaGlyphNames, bqnGlyphDocs, aplGlyphDocs, kapGlyphDocs, tinyaplGlyphDocs, jGlyphDocs, uiuaGlyphDocs } from '../vendor/array-box/src/keyboard.js';
 import { runTests as runTestsAPI, fetchAvailableLanguages, formatUiua, submitSolution, checkSolved } from '../api.js';
+import { hasClientRunner, runClientTests } from '../client-runner.js';
 
 // Language configuration
 const LANGUAGES = {
@@ -37,11 +39,107 @@ const LANGUAGES = {
     logo: '/logos/kap.png',
     fontClass: 'font-kap',
     hasKeymap: true,
-    keymapLang: 'apl', // Kap uses APL-style backtick prefix keymap
+    keymapLang: 'kap',
+  },
+  tinyapl: {
+    name: 'TinyAPL',
+    logo: '/logos/tinyapl.svg',
+    fontClass: 'font-tinyapl',
+    hasKeymap: true,
+    keymapLang: 'tinyapl',
   },
 };
 
-const LANGUAGE_ORDER = ['bqn', 'apl', 'j', 'uiua', 'kap'];
+const LANGUAGE_ORDER = ['bqn', 'apl', 'j', 'uiua', 'kap', 'tinyapl'];
+
+const KEYBOARD_CONFIGS = {
+  bqn: {
+    keymap: bqnKeymap,
+    language: 'BQN',
+    prefixKey: '\\',
+    fontFamily: "'BQN', 'Courier New', monospace",
+    syntaxRules: syntaxRules.bqn,
+    displayMode: 'keyboard',
+    glyphNames: bqnGlyphNames,
+    glyphDocs: bqnGlyphDocs,
+    logoPath: '/logos/bqn.svg',
+  },
+  apl: {
+    keymap: aplKeymap,
+    language: 'APL',
+    prefixKey: '`',
+    fontFamily: "'APL', 'Courier New', monospace",
+    syntaxRules: syntaxRules.apl,
+    displayMode: 'keyboard',
+    glyphNames: aplGlyphNames,
+    glyphDocs: aplGlyphDocs,
+    logoPath: '/logos/apl.png',
+  },
+  j: {
+    language: 'J',
+    fontFamily: "'JetBrains Mono', monospace",
+    syntaxRules: syntaxRules.j,
+    displayMode: 'category',
+    compactCategories: true,
+    categoryTitle: 'J Primitives',
+    glyphNames: jGlyphNames,
+    glyphDocs: jGlyphDocs,
+    logoPath: '/logos/j_logo.png',
+    glyphCategories: {
+      functions: { glyphs: jGlyphs.functions, label: 'Verbs', syntaxClass: 'syntax-function' },
+      verbDigraphs: { glyphs: jGlyphs.verbDigraphs, label: 'Verbs', syntaxClass: 'syntax-function' },
+      monadic: { glyphs: jGlyphs.monadic, label: 'Adverbs', syntaxClass: 'syntax-modifier-monadic' },
+      adverbDigraphs: { glyphs: jGlyphs.adverbDigraphs, label: 'Adverbs', syntaxClass: 'syntax-modifier-monadic' },
+      dyadic: { glyphs: jGlyphs.dyadic, label: 'Conjunctions', syntaxClass: 'syntax-modifier-dyadic' },
+      conjunctionDigraphs: { glyphs: jGlyphs.conjunctionDigraphs, label: 'Conjunctions', syntaxClass: 'syntax-modifier-dyadic' },
+      constants: { glyphs: jGlyphs.constants, label: 'Constants', syntaxClass: 'syntax-number' },
+      comments: { glyphs: jGlyphs.comments, label: 'Comments', syntaxClass: 'syntax-comment' },
+    },
+  },
+  uiua: {
+    language: 'Uiua',
+    fontFamily: "'Uiua', 'Courier New', monospace",
+    syntaxRules: syntaxRules.uiua,
+    displayMode: 'category',
+    compactCategories: true,
+    glyphNames: uiuaGlyphNames,
+    glyphDocs: uiuaGlyphDocs,
+    logoPath: '/logos/uiua.png',
+    glyphCategories: {
+      stack: { glyphs: uiuaGlyphs.stack, label: 'Stack', syntaxClass: 'syntax-stack' },
+      monadicPervasive: { glyphs: uiuaGlyphs.monadicPervasive, label: 'Monadic Functions', syntaxClass: 'syntax-uiua-function-monadic' },
+      monadicArray: { glyphs: uiuaGlyphs.monadicArray, label: 'Monadic Functions', syntaxClass: 'syntax-uiua-function-monadic', isArray: true },
+      dyadicPervasive: { glyphs: uiuaGlyphs.dyadicPervasive, label: 'Dyadic Functions', syntaxClass: 'syntax-uiua-function-dyadic' },
+      dyadicArray: { glyphs: uiuaGlyphs.dyadicArray, label: 'Dyadic Functions', syntaxClass: 'syntax-uiua-function-dyadic', isArray: true },
+      monadicModifiers: { glyphs: uiuaGlyphs.monadicModifiers, label: '1-Modifiers', syntaxClass: 'syntax-uiua-modifier-monadic' },
+      dyadicModifiers: { glyphs: uiuaGlyphs.dyadicModifiers, label: '2-Modifiers', syntaxClass: 'syntax-uiua-modifier-dyadic' },
+      constants: { glyphs: uiuaGlyphs.constants, label: 'Constants', syntaxClass: 'syntax-number' },
+    },
+  },
+  kap: {
+    keymap: kapKeymap,
+    language: 'Kap',
+    prefixKey: '`',
+    fontFamily: "'APL', 'Courier New', monospace",
+    syntaxRules: syntaxRules.kap,
+    displayMode: 'keyboard',
+    glyphNames: kapGlyphNames,
+    glyphDocs: kapGlyphDocs,
+    logoPath: '/logos/kap.png',
+  },
+  tinyapl: {
+    keymap: tinyaplKeymap,
+    language: 'TinyAPL',
+    prefixKey: '`',
+    fontFamily: "'TinyAPL', 'Courier New', monospace",
+    syntaxRules: syntaxRules.tinyapl,
+    displayMode: 'tinyapl',
+    tinyaplKeyboard: tinyaplKeyboard,
+    glyphNames: tinyaplGlyphNames,
+    glyphDocs: tinyaplGlyphDocs,
+    logoPath: '/logos/tinyapl.svg',
+  },
+};
 
 export default function ProblemSolver({ problem }) {
   const [language, setLanguage] = useState('bqn');
@@ -50,11 +148,13 @@ export default function ProblemSolver({ problem }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmission, setIsSubmission] = useState(false);
-  const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false, kap: false });
+  const [availableLanguages, setAvailableLanguages] = useState({ bqn: true, uiua: false, j: false, apl: false, kap: false, tinyapl: false });
   const [hasSolved, setHasSolved] = useState(false);
   const [submissionSaved, setSubmissionSaved] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const keyboardRef = useRef(null);
 
   const langConfig = LANGUAGES[language];
 
@@ -78,6 +178,34 @@ export default function ProblemSolver({ problem }) {
       return cleanup;
     }
   }, [language, langConfig.hasKeymap, langConfig.keymapLang]);
+
+  // Visual keyboard overlay (ArrayKeyboard from array-box)
+  useEffect(() => {
+    const config = KEYBOARD_CONFIGS[language];
+    if (!config) return;
+
+    if (keyboardRef.current) {
+      keyboardRef.current.destroy();
+      keyboardRef.current = null;
+    }
+
+    keyboardRef.current = new ArrayKeyboard({
+      ...config,
+      onGlyphClick: (glyph) => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          insertText(inputRef.current, glyph);
+        }
+      },
+    });
+
+    return () => {
+      if (keyboardRef.current) {
+        keyboardRef.current.destroy();
+        keyboardRef.current = null;
+      }
+    };
+  }, [language]);
 
   // Sync input value with state (needed because keyboard handler modifies DOM directly)
   // Also handle Uiua formatting on blur
@@ -158,12 +286,14 @@ export default function ProblemSolver({ problem }) {
   };
 
   const runTests = async (fullSuite = false) => {
-    // Check if language is available on server
-    if (!availableLanguages[language]) {
+    const serverAvailable = availableLanguages[language];
+    const clientAvailable = hasClientRunner(language);
+
+    if (!serverAvailable && !clientAvailable) {
       setResults([{ 
         input: '', 
         expected: '', 
-        actual: `${langConfig.name} is not available on the server. Please ensure the interpreter is installed.`, 
+        actual: `${langConfig.name} is not available. Please ensure the interpreter is installed on the server.`, 
         passed: false 
       }]);
       return;
@@ -174,14 +304,12 @@ export default function ProblemSolver({ problem }) {
     setSubmissionSaved(false);
 
     try {
-      // Format Uiua code before running
       let codeToRun = code;
       if (language === 'uiua' && code.trim()) {
         try {
           const formatResult = await formatUiua(code);
           if (formatResult.success && formatResult.formatted !== code) {
             codeToRun = formatResult.formatted;
-            // Update the input field and state with formatted code
             if (inputRef.current) {
               inputRef.current.value = formatResult.formatted;
             }
@@ -192,10 +320,7 @@ export default function ProblemSolver({ problem }) {
         }
       }
 
-      // Get language-specific test cases
       const allTestCases = problem?.testCasesByLanguage?.[language] || problem?.testCases || [];
-      
-      // Run only first 2 tests for "Run Tests", all tests for "Submit"
       const testsToRun = fullSuite 
         ? allTestCases
         : allTestCases.slice(0, 2);
@@ -205,18 +330,20 @@ export default function ProblemSolver({ problem }) {
         return;
       }
 
-      // Call backend API
-      const response = await runTestsAPI(language, codeToRun, testsToRun);
+      let response;
+      if (serverAvailable) {
+        response = await runTestsAPI(language, codeToRun, testsToRun);
+      } else {
+        response = await runClientTests(language, codeToRun, testsToRun);
+      }
       setResults(response.results);
       
-      // If this is a submission and all tests passed, save the solution
       if (fullSuite && response.allPassed) {
         try {
           await submitSolution(problem.slug, language, codeToRun, [...codeToRun].length);
           setHasSolved(true);
           setSubmissionSaved(true);
         } catch (e) {
-          // Silently fail - user might not be logged in
           console.log('Could not save submission:', e.message);
         }
       }
@@ -296,6 +423,46 @@ export default function ProblemSolver({ problem }) {
               })}
             </div>
           )}
+        </div>
+
+        {/* Keyboard & Help buttons */}
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={() => keyboardRef.current?.toggle()}
+            className="text-gray-400 hover:text-white transition-colors p-1.5 rounded hover:bg-gray-700"
+            title="Toggle keyboard overlay (Ctrl+K)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <rect x="2" y="6" width="20" height="12" rx="2" />
+              <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
+            </svg>
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowHelp(h => !h)}
+              className="text-gray-400 hover:text-white transition-colors p-1.5 rounded hover:bg-gray-700"
+              title="Keyboard shortcuts"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01" />
+              </svg>
+            </button>
+            {showHelp && (
+              <div className="absolute left-full top-0 ml-2 bg-gray-800 border border-gray-600 rounded-lg p-3 text-xs text-gray-300 whitespace-nowrap z-50 shadow-lg">
+                <div className="font-medium text-white mb-2">Shortcuts</div>
+                {langConfig.hasKeymap && (
+                  <div className="mb-1">
+                    <kbd className="bg-gray-700 px-1 rounded">{langConfig.keymapLang === 'bqn' ? '\\' : '`'}</kbd> + key → glyph
+                  </div>
+                )}
+                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+Enter</kbd> Run tests</div>
+                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+Shift+Enter</kbd> Submit</div>
+                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+↑/↓</kbd> Switch language</div>
+                <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+K</kbd> Keyboard overlay</div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Code input with syntax highlighting */}
@@ -388,7 +555,11 @@ export default function ProblemSolver({ problem }) {
             {/* Show results if we have them, otherwise show default test cases */}
             {results ? (
               // After running tests - show with pass/fail colors
-              results.map((res, i) => (
+              // For submissions with failures, only show the first failure
+              (isSubmission && results.some(r => !r.passed) 
+                ? [results.find(r => !r.passed)] 
+                : results
+              ).map((res, i) => (
                 <div
                   key={i}
                   className={`p-4 rounded-lg border ${

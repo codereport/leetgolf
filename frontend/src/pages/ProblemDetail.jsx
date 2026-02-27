@@ -48,6 +48,13 @@ const STARTER_PROBLEMS = {
         { input: '10', expected: '1 2 3 4 5 6 7 8 9 10' },
         { input: '7', expected: '1 2 3 4 5 6 7' },
       ],
+      tinyapl: [
+        { input: '3', expected: '⟨1 ⋄ 2 ⋄ 3⟩' },
+        { input: '5', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5⟩' },
+        { input: '1', expected: '⟨1⟩' },
+        { input: '10', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5 ⋄ 6 ⋄ 7 ⋄ 8 ⋄ 9 ⋄ 10⟩' },
+        { input: '7', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5 ⋄ 6 ⋄ 7⟩' },
+      ],
     },
     optimalLength: {
       bqn: 3,  // "1+↕"
@@ -55,6 +62,7 @@ const STARTER_PROBLEMS = {
       j: 4,    // ">:i."
       uiua: 3, // "+1⇡"
       kap: 1,  // "⍳"
+      tinyapl: 1,  // "⍳"
     },
   },
   'iota-rotate': {
@@ -99,6 +107,13 @@ const STARTER_PROBLEMS = {
         { input: '8', expected: '4 5 6 7 8 1 2 3', leftArg: '3' },
         { input: '10', expected: '6 7 8 9 10 1 2 3 4 5', leftArg: '5' },
       ],
+      tinyapl: [
+        { input: '5', expected: '⟨3 ⋄ 4 ⋄ 5 ⋄ 1 ⋄ 2⟩', leftArg: '2' },
+        { input: '6', expected: '⟨5 ⋄ 6 ⋄ 1 ⋄ 2 ⋄ 3 ⋄ 4⟩', leftArg: '4' },
+        { input: '4', expected: '⟨2 ⋄ 3 ⋄ 4 ⋄ 1⟩', leftArg: '1' },
+        { input: '8', expected: '⟨4 ⋄ 5 ⋄ 6 ⋄ 7 ⋄ 8 ⋄ 1 ⋄ 2 ⋄ 3⟩', leftArg: '3' },
+        { input: '10', expected: '⟨6 ⋄ 7 ⋄ 8 ⋄ 9 ⋄ 10 ⋄ 1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5⟩', leftArg: '5' },
+      ],
     },
     optimalLength: {
       bqn: 4,  // "⌽1+↕" 
@@ -106,6 +121,7 @@ const STARTER_PROBLEMS = {
       j: 6,    // "|.>:i."
       uiua: 4, // "↻+1⇡"
       kap: 3,  // "⌽⍳"
+      tinyapl: 3,  // "⌽⍳"
     },
   },
   'iota-hill': {
@@ -149,6 +165,13 @@ const STARTER_PROBLEMS = {
         { input: '4', expected: '1 2 3 4 4 3 2 1' },
         { input: '7', expected: '1 2 3 4 5 6 7 7 6 5 4 3 2 1' },
       ],
+      tinyapl: [
+        { input: '3', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 3 ⋄ 2 ⋄ 1⟩' },
+        { input: '5', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5 ⋄ 5 ⋄ 4 ⋄ 3 ⋄ 2 ⋄ 1⟩' },
+        { input: '1', expected: '⟨1 ⋄ 1⟩' },
+        { input: '4', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 4 ⋄ 3 ⋄ 2 ⋄ 1⟩' },
+        { input: '7', expected: '⟨1 ⋄ 2 ⋄ 3 ⋄ 4 ⋄ 5 ⋄ 6 ⋄ 7 ⋄ 7 ⋄ 6 ⋄ 5 ⋄ 4 ⋄ 3 ⋄ 2 ⋄ 1⟩' },
+      ],
     },
     optimalLength: {
       bqn: 7,  // "(⊢∾⌽)1+↕"
@@ -156,6 +179,65 @@ const STARTER_PROBLEMS = {
       j: 8,    // "(,|.)>:i."
       uiua: 6, // "⊂⇌.+1⇡"
       kap: 5,  // "(⊢,⌽)⍳"
+      tinyapl: 5,  // "(⊢,⌽)⍳"
+    },
+  },
+  'echo-chamber': {
+    title: 'Echo Chamber',
+    slug: 'echo-chamber',
+    description: 'You are given a string of lowercase letters. For each character at index i (0-based), repeat it i+1 times.',
+    isStarter: true,
+    testCasesByLanguage: {
+      bqn: [
+        { input: '"abca"', expected: '"abbcccaaaa"' },
+        { input: '"xyz"', expected: '"xyyzzz"' },
+        { input: '"code"', expected: '"coodddeeee"' },
+        { input: '"hello"', expected: '"heelllllllooooo"' },
+        { input: '"a"', expected: '"a"' },
+      ],
+      apl: [
+        { input: "'abca'", expected: 'abbcccaaaa' },
+        { input: "'xyz'", expected: 'xyyzzz' },
+        { input: "'code'", expected: 'coodddeeee' },
+        { input: "'hello'", expected: 'heelllllllooooo' },
+        { input: "'a'", expected: 'a' },
+      ],
+      j: [
+        { input: "'abca'", expected: 'abbcccaaaa' },
+        { input: "'xyz'", expected: 'xyyzzz' },
+        { input: "'code'", expected: 'coodddeeee' },
+        { input: "'hello'", expected: 'heelllllllooooo' },
+        { input: "'a'", expected: 'a' },
+      ],
+      uiua: [
+        { input: '"abca"', expected: '"abbcccaaaa"' },
+        { input: '"xyz"', expected: '"xyyzzz"' },
+        { input: '"code"', expected: '"coodddeeee"' },
+        { input: '"hello"', expected: '"heelllllllooooo"' },
+        { input: '"a"', expected: '"a"' },
+      ],
+      kap: [
+        { input: '"abca"', expected: '"abbcccaaaa"' },
+        { input: '"xyz"', expected: '"xyyzzz"' },
+        { input: '"code"', expected: '"coodddeeee"' },
+        { input: '"hello"', expected: '"heelllllllooooo"' },
+        { input: '"a"', expected: '"a"' },
+      ],
+      tinyapl: [
+        { input: '"abca"', expected: 'abbcccaaaa' },
+        { input: '"xyz"', expected: 'xyyzzz' },
+        { input: '"code"', expected: 'coodddeeee' },
+        { input: '"hello"', expected: 'heelllllllooooo' },
+        { input: '"a"', expected: 'a' },
+      ],
+    },
+    optimalLength: {
+      bqn: 7,     // /˜1+↕∘≠
+      apl: 6,     // ⊢/⍨⍳∘≢
+      j: 10,      // #~ >:@i.@#
+      uiua: 6,    // ▽+1⇡⧻.
+      kap: 6,     // ⊢/⍨⍳∘≢
+      tinyapl: 6, // ⊢/⍨⍳∘≢
     },
   }
 };

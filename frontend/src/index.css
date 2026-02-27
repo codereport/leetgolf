@@ -15,6 +15,20 @@
   font-family: 'APL';
   src: url('/vendor/array-box/fonts/Apl385.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'TinyAPL';
+  src: url('/vendor/array-box/fonts/TinyAPL386.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/vendor/array-box/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/vendor/array-box/fonts/JetBrainsMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
 
 /* Dracula syntax highlighting colors */
 :root {
@@ -23,6 +37,8 @@
   --syntax-dyadic: #F1FA8C;         /* Yellow - 2-modifiers */
   --syntax-modifier: #FFB86C;       /* Orange */
   --syntax-number: #BD93F9;         /* Purple */
+  --syntax-string: #F1FA8C;         /* Yellow - strings */
+  --syntax-comment: #6272A4;        /* Muted blue - comments */
   --syntax-default: #F8F8F2;        /* Light foreground */
 }
 
@@ -32,9 +48,11 @@
 .syntax-dyadic { color: var(--syntax-dyadic); }
 .syntax-modifier { color: var(--syntax-modifier); }
 .syntax-number { color: var(--syntax-number); }
+.syntax-string { color: var(--syntax-string); }
+.syntax-comment { color: var(--syntax-comment); }
 
 /* Default text color for array language fonts - ensures brackets etc are visible */
-.font-bqn, .font-apl, .font-uiua, .font-j, .font-kap {
+.font-bqn, .font-apl, .font-uiua, .font-j, .font-kap, .font-tinyapl {
   color: var(--syntax-default);
 }
 
@@ -43,7 +61,8 @@
 .font-uiua { font-family: 'Uiua', 'Courier New', monospace; }
 .font-apl { font-family: 'APL', 'Courier New', monospace; }
 .font-j { font-family: 'JetBrains Mono', 'Courier New', monospace; }
-.font-kap { font-family: 'APL', 'Courier New', monospace; } /* Kap uses APL-style characters */
+.font-kap { font-family: 'APL', 'Courier New', monospace; }
+.font-tinyapl { font-family: 'TinyAPL', 'Courier New', monospace; }
 
 body {
   margin: 0;

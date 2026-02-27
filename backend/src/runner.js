@@ -293,18 +293,15 @@ async function runAPL(code, input, leftArg = null) {
   
   return new Promise((resolve) => {
     // APL: apply the dfn/tacit function to the input
-    // Escape single quotes
+    // Only escape quotes in user code (which may contain APL quote characters)
+    // Input and leftArg are test data that already contain proper APL literals
     const escapedCode = code.replace(/'/g, "''");
-    const escapedInput = input.replace(/'/g, "''");
     
-    // For dyadic: leftArg (code) input
-    // For monadic: (code) input
     let aplInput;
     if (leftArg !== null) {
-      const escapedLeftArg = leftArg.replace(/'/g, "''");
-      aplInput = `]boxing on -s=min\n⎕←${escapedLeftArg} (${escapedCode}) ${escapedInput}\n`;
+      aplInput = `]boxing on -s=min\n⎕←${leftArg} (${escapedCode}) ${input}\n`;
     } else {
-      aplInput = `]boxing on -s=min\n⎕←(${escapedCode}) ${escapedInput}\n`;
+      aplInput = `]boxing on -s=min\n⎕←(${escapedCode}) ${input}\n`;
     }
     
     const proc = spawn(aplExecutable, ['-b'], {
@@ -583,6 +580,7 @@ export function getAvailableLanguages() {
     j: !!findJExecutable(),
     apl: !!findAPLExecutable(),
     kap: !!findKapExecutable(),
+    tinyapl: false, // Client-side only (WASM)
   };
 }
 
