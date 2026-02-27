@@ -28,13 +28,15 @@ const STARTER_PROBLEMS = [
     difficulty: 'Easy',
     isStarter: true,
   },
+];
+
+const PWC_PROBLEMS = [
   {
-    id: 'starter-echo-chamber',
+    id: 'pwc-echo-chamber',
     slug: 'echo-chamber',
     title: 'Echo Chamber',
     description: 'Repeat each character by its 1-based index position',
     difficulty: 'Easy',
-    isStarter: true,
   }
 ];
 
@@ -62,10 +64,11 @@ export default function Problems() {
     };
   }, []);
 
-  // Merge starter problems with backend problems (starters first)
-  const starterSlugs = new Set(STARTER_PROBLEMS.map(p => p.slug));
-  const filteredBackendProblems = backendProblems.filter(p => !starterSlugs.has(p.slug));
-  const allProblems = [...STARTER_PROBLEMS, ...filteredBackendProblems];
+  const localSlugs = new Set([
+    ...STARTER_PROBLEMS.map(p => p.slug),
+    ...PWC_PROBLEMS.map(p => p.slug),
+  ]);
+  const filteredBackendProblems = backendProblems.filter(p => !localSlugs.has(p.slug));
 
   return (
     <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12">
@@ -95,6 +98,35 @@ export default function Problems() {
                   </h2>
                   <span className="text-xs uppercase tracking-wide bg-green-600 text-white px-2 py-0.5 rounded-full">
                     Starter
+                  </span>
+                  <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
+                    {problem.difficulty}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-sm mt-2">{problem.description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* PWC Problems Section */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-orange-400 uppercase tracking-wide mb-4">
+            PWC
+          </h2>
+          <div className="space-y-4">
+            {PWC_PROBLEMS.map((problem) => (
+              <Link
+                key={problem.id}
+                to={`/problems/${problem.slug}`}
+                className="block bg-gradient-to-r from-orange-900/30 to-gray-800 border border-orange-700/50 rounded-lg p-6 hover:border-orange-500 transition group"
+              >
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-semibold text-white group-hover:text-orange-400 transition">
+                    {problem.title}
+                  </h2>
+                  <span className="text-xs uppercase tracking-wide bg-orange-500 text-white px-2 py-0.5 rounded-full">
+                    PWC
                   </span>
                   <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
                     {problem.difficulty}

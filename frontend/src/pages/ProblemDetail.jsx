@@ -186,7 +186,9 @@ const STARTER_PROBLEMS = {
     title: 'Echo Chamber',
     slug: 'echo-chamber',
     description: 'You are given a string of lowercase letters. For each character at index i (0-based), repeat it i+1 times.',
-    isStarter: true,
+    isPWC: true,
+    pwcLink: 'https://theweeklychallenge.org/blog/perl-weekly-challenge-362/',
+    pwcNumber: 362,
     testCasesByLanguage: {
       bqn: [
         { input: '"abca"', expected: '"abbcccaaaa"' },
@@ -314,8 +316,23 @@ export default function ProblemDetail() {
                     Starter
                   </span>
                 )}
+                {problem.isPWC && (
+                  <span className="text-xs uppercase tracking-wide bg-orange-500 text-white px-2 py-1 rounded-full">
+                    PWC
+                  </span>
+                )}
               </div>
               <p className="text-gray-300 text-lg">{problem.description}</p>
+              {problem.pwcLink && (
+                <a
+                  href={problem.pwcLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-sm text-orange-400 hover:text-orange-300 transition-colors"
+                >
+                  Link to PWC {problem.pwcNumber} →
+                </a>
+              )}
             </div>
 
             {/* Code Editor (array-box style) */}
