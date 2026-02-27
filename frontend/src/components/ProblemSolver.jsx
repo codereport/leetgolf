@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createKeyboardHandler, insertText, bqnKeymap, aplKeymap, kapKeymap, tinyaplKeymap, tinyaplKeyboard, uiuaGlyphs, jGlyphs } from '../vendor/array-box/src/keymap.js';
 import { highlightCode, syntaxRules } from '../vendor/array-box/src/syntax.js';
 import { ArrayKeyboard, bqnGlyphNames, aplGlyphNames, kapGlyphNames, tinyaplGlyphNames, jGlyphNames, uiuaGlyphNames, bqnGlyphDocs, aplGlyphDocs, kapGlyphDocs, tinyaplGlyphDocs, jGlyphDocs, uiuaGlyphDocs } from '../vendor/array-box/src/keyboard.js';
@@ -251,10 +251,11 @@ export default function ProblemSolver({ problem }) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  const navigate = useNavigate();
+
   // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ctrl+Up/Down to switch languages
       if (e.ctrlKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         e.preventDefault();
         const currentIndex = LANGUAGE_ORDER.indexOf(language);
@@ -265,12 +266,16 @@ export default function ProblemSolver({ problem }) {
           newIndex = currentIndex < LANGUAGE_ORDER.length - 1 ? currentIndex + 1 : 0;
         }
         setLanguage(LANGUAGE_ORDER[newIndex]);
-        setResults(null); // Clear results when switching
+        setResults(null);
+      }
+      if (e.ctrlKey && e.key === 'l' && hasSolved && problem?.slug) {
+        e.preventDefault();
+        navigate(`/problems/${problem.slug}/leaderboard`);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [language]);
+  }, [language, hasSolved, problem?.slug, navigate]);
 
   const switchLanguage = (lang) => {
     setLanguage(lang);
@@ -423,46 +428,6 @@ export default function ProblemSolver({ problem }) {
               })}
             </div>
           )}
-        </div>
-
-        {/* Keyboard & Help buttons */}
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={() => keyboardRef.current?.toggle()}
-            className="text-gray-400 hover:text-white transition-colors p-1.5 rounded hover:bg-gray-700"
-            title="Toggle keyboard overlay (Ctrl+K)"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <rect x="2" y="6" width="20" height="12" rx="2" />
-              <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-            </svg>
-          </button>
-          <div className="relative">
-            <button
-              onClick={() => setShowHelp(h => !h)}
-              className="text-gray-400 hover:text-white transition-colors p-1.5 rounded hover:bg-gray-700"
-              title="Keyboard shortcuts"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01" />
-              </svg>
-            </button>
-            {showHelp && (
-              <div className="absolute left-full top-0 ml-2 bg-gray-800 border border-gray-600 rounded-lg p-3 text-xs text-gray-300 whitespace-nowrap z-50 shadow-lg">
-                <div className="font-medium text-white mb-2">Shortcuts</div>
-                {langConfig.hasKeymap && (
-                  <div className="mb-1">
-                    <kbd className="bg-gray-700 px-1 rounded">{langConfig.keymapLang === 'bqn' ? '\\' : '`'}</kbd> + key → glyph
-                  </div>
-                )}
-                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+Enter</kbd> Run tests</div>
-                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+Shift+Enter</kbd> Submit</div>
-                <div className="mb-1"><kbd className="bg-gray-700 px-1 rounded">Ctrl+↑/↓</kbd> Switch language</div>
-                <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+K</kbd> Keyboard overlay</div>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Code input with syntax highlighting */}

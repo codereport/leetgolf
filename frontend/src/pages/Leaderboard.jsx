@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getLeaderboard } from '../api';
 import { highlightCode } from '../vendor/array-box/src/syntax.js';
 
@@ -23,12 +23,24 @@ const LANGUAGE_FONTS = {
 
 export default function Leaderboard() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notSolved, setNotSolved] = useState(false);
 
   const [notAuthenticated, setNotAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'l') {
+        e.preventDefault();
+        navigate(`/problems/${slug}`);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [slug, navigate]);
 
   useEffect(() => {
     setLoading(true);
@@ -172,7 +184,7 @@ export default function Leaderboard() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           <code 
-                            className={`${LANGUAGE_FONTS[entry.language]} text-lg`}
+                            className={`${LANGUAGE_FONTS[entry.language]} text-2xl`}
                             dangerouslySetInnerHTML={{ __html: highlightCode(entry.solution, entry.language) }}
                           />
                         </td>

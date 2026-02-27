@@ -32,24 +32,41 @@
 
 /* Dracula syntax highlighting colors */
 :root {
-  --syntax-function: #8BE9FD;       /* Cyan - functions */
-  --syntax-monadic: #50FA7B;        /* Green - 1-modifiers */
-  --syntax-dyadic: #F1FA8C;         /* Yellow - 2-modifiers */
-  --syntax-modifier: #FFB86C;       /* Orange */
-  --syntax-number: #BD93F9;         /* Purple */
-  --syntax-string: #F1FA8C;         /* Yellow - strings */
-  --syntax-comment: #6272A4;        /* Muted blue - comments */
-  --syntax-default: #F8F8F2;        /* Light foreground */
+  /* Shared */
+  --syntax-number: #BD93F9;          /* Purple */
+  --syntax-comment: #6272A4;         /* Muted blue */
+  --syntax-default: #F8F8F2;         /* Light foreground */
+  --syntax-string: #F1FA8C;          /* Yellow */
+  --syntax-string-incomplete: #FF5555; /* Red */
+
+  /* Uiua (monadic/dyadic for both functions and modifiers) */
+  --syntax-uiua-function-monadic: #8BE9FD; /* Cyan */
+  --syntax-uiua-function-dyadic: #50FA7B;  /* Green */
+  --syntax-uiua-modifier-monadic: #F1FA8C; /* Yellow */
+  --syntax-uiua-modifier-dyadic: #FF79C6;  /* Pink */
+
+  /* Other languages (APL, BQN, J, Kap, TinyAPL) */
+  --syntax-function: #8BE9FD;         /* Cyan */
+  --syntax-modifier-monadic: #50FA7B; /* Green */
+  --syntax-modifier-dyadic: #F1FA8C;  /* Yellow */
 }
 
-/* Syntax highlighting classes */
-.syntax-function { color: var(--syntax-function); }
-.syntax-monadic { color: var(--syntax-monadic); }
-.syntax-dyadic { color: var(--syntax-dyadic); }
-.syntax-modifier { color: var(--syntax-modifier); }
-.syntax-number { color: var(--syntax-number); }
-.syntax-string { color: var(--syntax-string); }
+/* Syntax highlighting classes — shared */
+.syntax-number  { color: var(--syntax-number); }
 .syntax-comment { color: var(--syntax-comment); }
+.syntax-string  { color: var(--syntax-string); }
+.syntax-string-incomplete { color: var(--syntax-string-incomplete); }
+
+/* Uiua-specific */
+.syntax-uiua-function-monadic { color: var(--syntax-uiua-function-monadic); }
+.syntax-uiua-function-dyadic  { color: var(--syntax-uiua-function-dyadic); }
+.syntax-uiua-modifier-monadic { color: var(--syntax-uiua-modifier-monadic); }
+.syntax-uiua-modifier-dyadic  { color: var(--syntax-uiua-modifier-dyadic); }
+
+/* APL, BQN, J, Kap, TinyAPL */
+.syntax-function         { color: var(--syntax-function); }
+.syntax-modifier-monadic { color: var(--syntax-modifier-monadic); }
+.syntax-modifier-dyadic  { color: var(--syntax-modifier-dyadic); }
 
 /* Default text color for array language fonts - ensures brackets etc are visible */
 .font-bqn, .font-apl, .font-uiua, .font-j, .font-kap, .font-tinyapl {
