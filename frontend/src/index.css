@@ -89,3 +89,19 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Presentation mode (Ctrl+P) */
+body.presentation-mode nav {
+  display: none !important;
+}
+
+body.presentation-mode .presentation-hide {
+  display: none !important;
+}
+
+body.presentation-mode .presentation-content {
+  padding-top: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

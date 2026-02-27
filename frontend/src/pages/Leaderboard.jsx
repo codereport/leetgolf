@@ -66,9 +66,9 @@ export default function Leaderboard() {
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12">
+    <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12 presentation-content">
       <div className="max-w-4xl mx-auto">
-        <Link to={`/problems/${slug}`} className="text-green-400 hover:text-green-300 text-sm">
+        <Link to={`/problems/${slug}`} className="text-green-400 hover:text-green-300 text-sm presentation-hide">
           ← Back to Problem
         </Link>
 

@@ -185,7 +185,7 @@ const STARTER_PROBLEMS = {
   'echo-chamber': {
     title: 'Echo Chamber',
     slug: 'echo-chamber',
-    description: 'You are given a string of lowercase letters. For each character at index i (0-based), repeat it i+1 times.',
+    description: 'You are given a string of lowercase letters. For each character at index i (1-based), repeat it i times.',
     isPWC: true,
     pwcLink: 'https://theweeklychallenge.org/blog/perl-weekly-challenge-362/',
     pwcNumber: 362,
@@ -287,9 +287,9 @@ export default function ProblemDetail() {
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12">
+    <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12 presentation-content">
       <div className="max-w-2xl mx-auto">
-        <Link to="/problems" className="text-green-400 hover:text-green-300 text-sm">
+        <Link to="/problems" className="text-green-400 hover:text-green-300 text-sm presentation-hide">
           ← Back to Problems
         </Link>
 

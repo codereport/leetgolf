@@ -16,6 +16,17 @@ function App() {
     fetchCurrentUser().then(setUser);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        document.body.classList.toggle('presentation-mode');
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <BrowserRouter>
       <Navbar user={user} />
