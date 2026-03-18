@@ -30,6 +30,7 @@ export default function Leaderboard() {
   const [notSolved, setNotSolved] = useState(false);
 
   const [notAuthenticated, setNotAuthenticated] = useState(false);
+  const [hiddenRows, setHiddenRows] = useState(new Set());
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -145,10 +146,22 @@ export default function Leaderboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.map((entry, index) => (
+                    {leaderboard.map((entry, index) => {
+                      if (hiddenRows.has(entry.id)) return null;
+                      return (
                       <tr
                         key={entry.id}
                         className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors"
+                        onClick={(e) => {
+                          if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            setHiddenRows(prev => {
+                              const next = new Set(prev);
+                              next.add(entry.id);
+                              return next;
+                            });
+                          }
+                        }}
                       >
                         <td className="px-4 py-3">
                           <span className={`font-mono ${
@@ -194,7 +207,8 @@ export default function Leaderboard() {
                           </span>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
