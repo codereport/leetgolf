@@ -33,3 +33,5 @@ Thumbs.db
 
 # Copied vendor assets (copied from submodule on build)
 frontend/public/vendor/array-box/
+
+backend/aplcore

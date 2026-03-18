@@ -37,6 +37,13 @@ const PWC_PROBLEMS = [
     title: 'Echo Chamber',
     description: 'Repeat each character by its 1-based index position',
     difficulty: 'Easy',
+  },
+  {
+    id: 'pwc-no-connection',
+    slug: 'no-connection',
+    title: 'No Connection',
+    description: 'Find the destination with no further outgoing connection',
+    difficulty: 'Easy',
   }
 ];
 

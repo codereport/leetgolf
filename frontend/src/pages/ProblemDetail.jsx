@@ -241,6 +241,66 @@ const STARTER_PROBLEMS = {
       kap: 6,     // ⊢/⍨⍳∘≢
       tinyapl: 6, // ⊢/⍨⍳∘≢
     },
+  },
+  'no-connection': {
+    title: 'No Connection',
+    slug: 'no-connection',
+    description: 'You are given a list of routes. Write a script to find the destination with no further outgoing connection.',
+    isPWC: true,
+    pwcLink: 'https://theweeklychallenge.org/blog/perl-weekly-challenge-285/',
+    pwcNumber: 285,
+    testCasesByLanguage: {
+      bqn: [
+        { input: '"BC"‿"DB"‿"CA"', expected: '"A"' },
+        { input: '⟨"AZ"⟩', expected: '"Z"' },
+        { input: '"XY"‿"YZ"', expected: '"Z"' },
+        { input: '"MN"‿"OM"‿"NP"', expected: '"P"' },
+        { input: '"AB"‿"BC"‿"CD"‿"DE"', expected: '"E"' },
+      ],
+      apl: [
+        { input: "'BC' 'DB' 'CA'", expected: 'A' },
+        { input: ",⊂'AZ'", expected: 'Z' },
+        { input: "'XY' 'YZ'", expected: 'Z' },
+        { input: "'MN' 'OM' 'NP'", expected: 'P' },
+        { input: "'AB' 'BC' 'CD' 'DE'", expected: 'E' },
+      ],
+      j: [
+        { input: "'BC';'DB';'CA'", expected: 'A' },
+        { input: ",<'AZ'", expected: 'Z' },
+        { input: "'XY';'YZ'", expected: 'Z' },
+        { input: "'MN';'OM';'NP'", expected: 'P' },
+        { input: "'AB';'BC';'CD';'DE'", expected: 'E' },
+      ],
+      uiua: [
+        { input: '["BC" "DB" "CA"]', expected: '"A"' },
+        { input: '["AZ"]', expected: '"Z"' },
+        { input: '["XY" "YZ"]', expected: '"Z"' },
+        { input: '["MN" "OM" "NP"]', expected: '"P"' },
+        { input: '["AB" "BC" "CD" "DE"]', expected: '"E"' },
+      ],
+      kap: [
+        { input: '"BC" "DB" "CA"', expected: '"A"' },
+        { input: ',⊂"AZ"', expected: '"Z"' },
+        { input: '"XY" "YZ"', expected: '"Z"' },
+        { input: '"MN" "OM" "NP"', expected: '"P"' },
+        { input: '"AB" "BC" "CD" "DE"', expected: '"E"' },
+      ],
+      tinyapl: [
+        { input: '"BC"‿"DB"‿"CA"', expected: 'A' },
+        { input: '⟨"AZ"⟩', expected: 'Z' },
+        { input: '"XY"‿"YZ"', expected: 'Z' },
+        { input: '"MN"‿"OM"‿"NP"', expected: 'P' },
+        { input: '"AB"‿"BC"‿"CD"‿"DE"', expected: 'E' },
+      ],
+    },
+    optimalLength: {
+      bqn: 20,
+      apl: 14,
+      j: 10,
+      uiua: 15,
+      kap: 14,
+      tinyapl: 14,
+    },
   }
 };
 

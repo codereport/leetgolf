@@ -52,16 +52,15 @@ async function runBQN(code, input, leftArg = null) {
   
   try {
     // Wrap code as a function applied to input
-    // For dyadic: leftArg {𝕨 code 𝕩} input
-    // For monadic: {code 𝕩} input
+    // Uses (code) like J/APL/Kap so tacit trains parse correctly
     let expr;
     if (leftArg !== null) {
-      expr = `${leftArg} {𝕨 ${code} 𝕩} ${input}`;
+      expr = `${leftArg} (${code}) ${input}`;
     } else {
-      expr = `{${code} 𝕩} ${input}`;
+      expr = `(${code}) ${input}`;
     }
     const result = bqnEngine(expr);
-    const formatted = bqnFmt(result);
+    const formatted = String(bqnFmt(result));
     return { success: true, output: formatted };
   } catch (e) {
     return { success: false, output: e.message || String(e) };
@@ -555,7 +554,7 @@ export async function runTests(language, code, testCases) {
     const { success, output } = await runCode(language, code, test.input, test.leftArg || null);
     
     // Normalize output for comparison (trim whitespace)
-    const actual = output.trim();
+    const actual = String(output ?? '').trim();
     const expected = test.expected.trim();
     const passed = success && actual === expected;
     
