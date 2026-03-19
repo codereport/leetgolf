@@ -77,7 +77,7 @@
 .font-bqn { font-family: 'BQN', 'Courier New', monospace; }
 .font-uiua { font-family: 'Uiua', 'Courier New', monospace; }
 .font-apl { font-family: 'APL', 'Courier New', monospace; }
-.font-j { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+.font-j { font-family: 'JetBrains Mono', 'Courier New', monospace; font-variant-ligatures: none; }
 .font-kap { font-family: 'APL', 'Courier New', monospace; }
 .font-tinyapl { font-family: 'TinyAPL', 'Courier New', monospace; }
 
