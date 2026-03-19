@@ -6,7 +6,7 @@ import { highlightCode } from '../vendor/array-box/src/syntax.js';
 const LANGUAGE_LOGOS = {
   bqn: '/logos/bqn.svg',
   apl: '/logos/apl.png',
-  j: '/logos/j_logo.png',
+  j: '/logos/j_logo.svg',
   uiua: '/logos/uiua.png',
   kap: '/logos/kap.png',
   tinyapl: '/logos/tinyapl.svg',

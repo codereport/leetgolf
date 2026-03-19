@@ -14,7 +14,7 @@ export default function Landing() {
         <div className="flex items-center justify-center gap-6 mb-12">
           <img src="/logos/apl.png" alt="APL" className="h-12 w-12 object-contain" title="APL" />
           <img src="/logos/bqn.svg" alt="BQN" className="h-12 w-12 object-contain" title="BQN" />
-          <img src="/logos/j_logo.png" alt="J" className="h-12 w-12 object-contain" title="J" />
+          <img src="/logos/j_logo.svg" alt="J" className="h-12 w-12 object-contain" title="J" />
           <img src="/logos/uiua.png" alt="Uiua" className="h-12 w-12 object-contain" title="Uiua" />
           <img src="/logos/kap.png" alt="Kap" className="h-12 w-12 object-contain" title="Kap" />
           <img src="/logos/tinyapl.svg" alt="TinyAPL" className="h-12 w-12 object-contain" title="TinyAPL" />

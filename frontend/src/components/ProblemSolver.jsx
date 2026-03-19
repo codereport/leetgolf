@@ -24,7 +24,7 @@ const LANGUAGES = {
   },
   j: {
     name: 'J',
-    logo: '/logos/j_logo.png',
+    logo: '/logos/j_logo.svg',
     fontClass: 'font-j',
     hasKeymap: false,
   },
@@ -84,7 +84,7 @@ const KEYBOARD_CONFIGS = {
     categoryTitle: 'J Primitives',
     glyphNames: jGlyphNames,
     glyphDocs: jGlyphDocs,
-    logoPath: '/logos/j_logo.png',
+    logoPath: '/logos/j_logo.svg',
     glyphCategories: {
       functions: { glyphs: jGlyphs.functions, label: 'Verbs', syntaxClass: 'syntax-function' },
       verbDigraphs: { glyphs: jGlyphs.verbDigraphs, label: 'Verbs', syntaxClass: 'syntax-function' },
