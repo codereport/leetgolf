@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getLeaderboard } from '../api';
 import { highlightCode } from '../vendor/array-box/src/syntax.js';
@@ -21,6 +21,76 @@ const LANGUAGE_FONTS = {
   tinyapl: 'font-tinyapl',
 };
 
+function ShowcaseTable({ leaderboard }) {
+  const bestByLang = new Map();
+  for (const entry of leaderboard) {
+    const prev = bestByLang.get(entry.language);
+    if (!prev || entry.char_count < prev.char_count) {
+      bestByLang.set(entry.language, entry);
+    }
+  }
+  const entries = [...bestByLang.values()];
+  const mid = Math.ceil(entries.length / 2);
+  const left = entries.slice(0, mid);
+  const right = entries.slice(mid);
+  const rows = Math.max(left.length, right.length);
+
+  const tableRef = useRef(null);
+  const [scale, setScale] = useState(1);
+
+  const recalcScale = useCallback(() => {
+    const el = tableRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const naturalW = rect.width / scale;
+    const naturalH = rect.height / scale;
+    const sx = (window.innerWidth * 0.8) / naturalW;
+    const sy = (window.innerHeight * 0.8) / naturalH;
+    setScale(Math.min(sx, sy));
+  }, [scale]);
+
+  useEffect(() => {
+    recalcScale();
+    window.addEventListener('resize', recalcScale);
+    return () => window.removeEventListener('resize', recalcScale);
+  }, [recalcScale]);
+
+  const renderCell = (entry, isRight) => (
+    <>
+      <td className={`${isRight ? 'pl-8' : ''} px-4 py-4 text-center`}>
+        <img
+          src={LANGUAGE_LOGOS[entry.language]}
+          alt={entry.language}
+          className="object-contain mx-auto"
+          style={{ width: '3.2rem', height: '3.2rem' }}
+        />
+      </td>
+      <td className={`${!isRight ? 'pr-8' : ''} px-4 py-4 text-center`}>
+        <code
+          className={`${LANGUAGE_FONTS[entry.language]} text-2xl whitespace-nowrap`}
+          dangerouslySetInnerHTML={{ __html: highlightCode(entry.solution, entry.language) }}
+        />
+      </td>
+    </>
+  );
+
+  return (
+    <table
+      ref={tableRef}
+      style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
+    >
+      <tbody>
+        {Array.from({ length: rows }, (_, i) => (
+          <tr key={i}>
+            {left[i] ? renderCell(left[i], false) : <><td /><td /></>}
+            {right[i] ? renderCell(right[i], true) : <><td /><td /></>}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 export default function Leaderboard() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -31,12 +101,18 @@ export default function Leaderboard() {
 
   const [notAuthenticated, setNotAuthenticated] = useState(false);
   const [hiddenRows, setHiddenRows] = useState(new Set());
+  const [hiddenCols, setHiddenCols] = useState(new Set());
+  const [showcaseMode, setShowcaseMode] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'l') {
         e.preventDefault();
         navigate(`/problems/${slug}`);
+      }
+      if (e.ctrlKey && e.key === 't') {
+        e.preventDefault();
+        setShowcaseMode(prev => !prev);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -67,13 +143,17 @@ export default function Leaderboard() {
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-gray-900 pt-20 px-8 pb-12 presentation-content">
-      <div className="max-w-4xl mx-auto">
-        <Link to={`/problems/${slug}`} className="text-green-400 hover:text-green-300 text-sm presentation-hide">
-          ← Back to Problem
-        </Link>
+    <div className={`min-h-screen px-8 pb-12 presentation-content ${showcaseMode ? 'bg-gray-800 flex items-center justify-center' : 'bg-gray-900 pt-20'}`}>
+      <div className={showcaseMode ? '' : 'max-w-4xl mx-auto'}>
+        {!showcaseMode && (
+          <Link to={`/problems/${slug}`} className="text-green-400 hover:text-green-300 text-sm presentation-hide">
+            ← Back to Problem
+          </Link>
+        )}
 
-        <h1 className="text-3xl font-bold text-white mt-6 mb-8">Leaderboard</h1>
+        {!showcaseMode && (
+          <h1 className="text-3xl font-bold text-white mt-6 mb-8">Leaderboard</h1>
+        )}
 
         {loading && (
           <div className="bg-gray-800 rounded-lg p-8 border border-gray-700 text-gray-300">
@@ -123,26 +203,34 @@ export default function Leaderboard() {
               <div className="bg-gray-800 rounded-lg p-8 border border-gray-700 text-gray-400 text-center">
                 No submissions yet. Be the first to solve this problem!
               </div>
+            ) : showcaseMode ? (
+              <ShowcaseTable leaderboard={leaderboard} />
             ) : (
               <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-700 bg-gray-800/50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-12">
-                        #
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                        User
-                      </th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide w-20">
-                        Lang
-                      </th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                        Solution
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide w-24">
-                        Chars
-                      </th>
+                      {[
+                        { key: 'rank', label: '#', className: 'text-left w-12' },
+                        { key: 'user', label: 'User', className: 'text-left' },
+                        { key: 'lang', label: 'Lang', className: 'text-center w-20' },
+                        { key: 'solution', label: 'Solution', className: 'text-center' },
+                        { key: 'chars', label: 'Chars', className: 'text-right w-24' },
+                      ].filter(col => !hiddenCols.has(col.key)).map(col => (
+                        <th
+                          key={col.key}
+                          className={`px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide select-none ${col.className}`}
+                          title="Ctrl+click to hide"
+                          onClick={(e) => {
+                            if (e.ctrlKey || e.metaKey) {
+                              e.preventDefault();
+                              setHiddenCols(prev => new Set([...prev, col.key]));
+                            }
+                          }}
+                        >
+                          {col.label}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
@@ -163,6 +251,7 @@ export default function Leaderboard() {
                           }
                         }}
                       >
+                        {!hiddenCols.has('rank') && (
                         <td className="px-4 py-3">
                           <span className={`font-mono ${
                             index === 0 ? 'text-yellow-400 font-bold' :
@@ -173,6 +262,8 @@ export default function Leaderboard() {
                             {index + 1}
                           </span>
                         </td>
+                        )}
+                        {!hiddenCols.has('user') && (
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             {entry.avatar_url && (
@@ -187,6 +278,8 @@ export default function Leaderboard() {
                             </span>
                           </div>
                         </td>
+                        )}
+                        {!hiddenCols.has('lang') && (
                         <td className="px-4 py-3 text-center">
                           <img
                             src={LANGUAGE_LOGOS[entry.language]}
@@ -195,17 +288,22 @@ export default function Leaderboard() {
                             title={entry.language.toUpperCase()}
                           />
                         </td>
+                        )}
+                        {!hiddenCols.has('solution') && (
                         <td className="px-4 py-3 text-center">
                           <code 
                             className={`${LANGUAGE_FONTS[entry.language]} text-2xl`}
                             dangerouslySetInnerHTML={{ __html: highlightCode(entry.solution, entry.language) }}
                           />
                         </td>
+                        )}
+                        {!hiddenCols.has('chars') && (
                         <td className="px-4 py-3 text-right">
                           <span className="font-mono font-bold text-lg text-gray-300">
                             {entry.char_count}
                           </span>
                         </td>
+                        )}
                       </tr>
                       );
                     })}
