@@ -77,7 +77,14 @@ function ShowcaseTable({ leaderboard }) {
   return (
     <table
       ref={tableRef}
-      style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
+      cellPadding={0}
+      cellSpacing={0}
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center',
+        borderCollapse: 'collapse',
+        borderSpacing: 0,
+      }}
     >
       <tbody>
         {Array.from({ length: rows }, (_, i) => (
@@ -110,7 +117,7 @@ export default function Leaderboard() {
         e.preventDefault();
         navigate(`/problems/${slug}`);
       }
-      if (e.ctrlKey && e.key === 't') {
+      if (e.ctrlKey && e.shiftKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault();
         setShowcaseMode(prev => !prev);
       }
