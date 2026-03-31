@@ -44,6 +44,13 @@ const PWC_PROBLEMS = [
     title: 'No Connection',
     description: 'Find the destination with no further outgoing connection',
     difficulty: 'Easy',
+  },
+  {
+    id: 'pwc-max-odd-binary',
+    slug: 'max-odd-binary',
+    title: 'Max Odd Binary',
+    description: 'Rearrange bits to form the maximum odd binary number',
+    difficulty: 'Easy',
   }
 ];
 

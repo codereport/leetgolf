@@ -242,6 +242,66 @@ const STARTER_PROBLEMS = {
       tinyapl: 6, // ⊢/⍨⍳∘≢
     },
   },
+  'max-odd-binary': {
+    title: 'Max Odd Binary',
+    slug: 'max-odd-binary',
+    description: 'You are given a binary string that has at least one \'1\'. Rearrange the bits so the resulting binary number is the maximum odd binary number. The result can have leading zeros.',
+    isPWC: true,
+    pwcLink: 'https://theweeklychallenge.org/blog/perl-weekly-challenge-367/',
+    pwcNumber: 367,
+    testCasesByLanguage: {
+      bqn: [
+        { input: '"1011"', expected: '"1101"' },
+        { input: '"100"', expected: '"001"' },
+        { input: '"111000"', expected: '"110001"' },
+        { input: '"0101"', expected: '"1001"' },
+        { input: '"1111"', expected: '"1111"' },
+      ],
+      apl: [
+        { input: "'1011'", expected: '1101' },
+        { input: "'100'", expected: '001' },
+        { input: "'111000'", expected: '110001' },
+        { input: "'0101'", expected: '1001' },
+        { input: "'1111'", expected: '1111' },
+      ],
+      j: [
+        { input: "'1011'", expected: '1101' },
+        { input: "'100'", expected: '001' },
+        { input: "'111000'", expected: '110001' },
+        { input: "'0101'", expected: '1001' },
+        { input: "'1111'", expected: '1111' },
+      ],
+      uiua: [
+        { input: '"1011"', expected: '"1101"' },
+        { input: '"100"', expected: '"001"' },
+        { input: '"111000"', expected: '"110001"' },
+        { input: '"0101"', expected: '"1001"' },
+        { input: '"1111"', expected: '"1111"' },
+      ],
+      kap: [
+        { input: '"1011"', expected: '"1101"' },
+        { input: '"100"', expected: '"001"' },
+        { input: '"111000"', expected: '"110001"' },
+        { input: '"0101"', expected: '"1001"' },
+        { input: '"1111"', expected: '"1111"' },
+      ],
+      tinyapl: [
+        { input: '"1011"', expected: '1101' },
+        { input: '"100"', expected: '001' },
+        { input: '"111000"', expected: '110001' },
+        { input: '"0101"', expected: '1001' },
+        { input: '"1111"', expected: '1111' },
+      ],
+    },
+    optimalLength: {
+      bqn: 3,     // 1⌽∨
+      apl: 8,
+      j: 10,
+      uiua: 6,
+      kap: 8,
+      tinyapl: 8,
+    },
+  },
   'no-connection': {
     title: 'No Connection',
     slug: 'no-connection',
