@@ -30,6 +30,16 @@ const STARTER_PROBLEMS = [
   },
 ];
 
+const LEETCODE_PROBLEMS = [
+  {
+    id: 'lc-first-matching-char',
+    slug: 'first-matching-char',
+    title: 'First Matching Character',
+    description: 'Find the smallest index i where s[i] == s[n - i - 1]',
+    difficulty: 'Easy',
+  },
+];
+
 const PWC_PROBLEMS = [
   {
     id: 'pwc-echo-chamber',
@@ -81,6 +91,7 @@ export default function Problems() {
   const localSlugs = new Set([
     ...STARTER_PROBLEMS.map(p => p.slug),
     ...PWC_PROBLEMS.map(p => p.slug),
+    ...LEETCODE_PROBLEMS.map(p => p.slug),
   ]);
   const filteredBackendProblems = backendProblems.filter(p => !localSlugs.has(p.slug));
 
@@ -141,6 +152,35 @@ export default function Problems() {
                   </h2>
                   <span className="text-xs uppercase tracking-wide bg-orange-500 text-white px-2 py-0.5 rounded-full">
                     PWC
+                  </span>
+                  <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
+                    {problem.difficulty}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-sm mt-2">{problem.description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* LeetCode Problems Section */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-yellow-400 uppercase tracking-wide mb-4">
+            LeetCode
+          </h2>
+          <div className="space-y-4">
+            {LEETCODE_PROBLEMS.map((problem) => (
+              <Link
+                key={problem.id}
+                to={`/problems/${problem.slug}`}
+                className="block bg-gradient-to-r from-yellow-900/30 to-gray-800 border border-yellow-700/50 rounded-lg p-6 hover:border-yellow-500 transition group"
+              >
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-semibold text-white group-hover:text-yellow-400 transition">
+                    {problem.title}
+                  </h2>
+                  <span className="text-xs uppercase tracking-wide bg-yellow-500 text-black px-2 py-0.5 rounded-full">
+                    LeetCode
                   </span>
                   <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">
                     {problem.difficulty}

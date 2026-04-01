@@ -302,6 +302,65 @@ const STARTER_PROBLEMS = {
       tinyapl: 8,
     },
   },
+  'first-matching-char': {
+    title: 'First Matching Character',
+    slug: 'first-matching-char',
+    description: 'You are given a string s of length n. Return the smallest index i such that s[i] == s[n - i - 1]. If no such index exists, return -1.',
+    isLeetCode: true,
+    leetcodeLink: 'https://leetcode.com/problems/first-matching-character-from-both-ends/description/',
+    testCasesByLanguage: {
+      bqn: [
+        { input: '"abcacbd"', expected: '1' },
+        { input: '"abc"', expected: '1' },
+        { input: '"abcdab"', expected: '¯1' },
+        { input: '"aa"', expected: '0' },
+        { input: '"abcba"', expected: '0' },
+      ],
+      apl: [
+        { input: "'abcacbd'", expected: '1' },
+        { input: "'abc'", expected: '1' },
+        { input: "'abcdab'", expected: '¯1' },
+        { input: "'aa'", expected: '0' },
+        { input: "'abcba'", expected: '0' },
+      ],
+      j: [
+        { input: "'abcacbd'", expected: '1' },
+        { input: "'abc'", expected: '1' },
+        { input: "'abcdab'", expected: '_1' },
+        { input: "'aa'", expected: '0' },
+        { input: "'abcba'", expected: '0' },
+      ],
+      uiua: [
+        { input: '"abcacbd"', expected: '1' },
+        { input: '"abc"', expected: '1' },
+        { input: '"abcdab"', expected: '¯1' },
+        { input: '"aa"', expected: '0' },
+        { input: '"abcba"', expected: '0' },
+      ],
+      kap: [
+        { input: '"abcacbd"', expected: '1' },
+        { input: '"abc"', expected: '1' },
+        { input: '"abcdab"', expected: '-1' },
+        { input: '"aa"', expected: '0' },
+        { input: '"abcba"', expected: '0' },
+      ],
+      tinyapl: [
+        { input: '"abcacbd"', expected: '1' },
+        { input: '"abc"', expected: '1' },
+        { input: '"abcdab"', expected: '¯1' },
+        { input: '"aa"', expected: '0' },
+        { input: '"abcba"', expected: '0' },
+      ],
+    },
+    optimalLength: {
+      bqn: 10,
+      apl: 10,
+      j: 12,
+      uiua: 10,
+      kap: 10,
+      tinyapl: 10,
+    },
+  },
   'no-connection': {
     title: 'No Connection',
     slug: 'no-connection',
@@ -441,6 +500,11 @@ export default function ProblemDetail() {
                     PWC
                   </span>
                 )}
+                {problem.isLeetCode && (
+                  <span className="text-xs uppercase tracking-wide bg-yellow-500 text-black px-2 py-1 rounded-full">
+                    LeetCode
+                  </span>
+                )}
               </div>
               <p className="text-gray-300 text-lg">{problem.description}</p>
               {problem.pwcLink && (
@@ -451,6 +515,16 @@ export default function ProblemDetail() {
                   className="inline-block mt-2 text-sm text-orange-400 hover:text-orange-300 transition-colors"
                 >
                   Link to PWC {problem.pwcNumber} →
+                </a>
+              )}
+              {problem.leetcodeLink && (
+                <a
+                  href={problem.leetcodeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
+                >
+                  View on LeetCode →
                 </a>
               )}
             </div>
