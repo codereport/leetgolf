@@ -7,10 +7,10 @@ A code golf competitive programming platform with GitHub OAuth login.
 ## Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────────┐     ┌─────────────┐
+┌─────────────────┐      ┌──────────────────────┐      ┌─────────────┐
 │  GitHub Pages   │────▶│   Backend API        │────▶│   SQLite    │
-│  (Frontend)     │     │  (Railway/Render)    │     │             │
-└─────────────────┘     └──────────────────────┘     └─────────────┘
+│  (Frontend)     │      │  (Railway/Render)    │      │             │
+└─────────────────┘      └──────────────────────┘      └─────────────┘
 ```
 
 - **Frontend**: React SPA hosted on GitHub Pages
