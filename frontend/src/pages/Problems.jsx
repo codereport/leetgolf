@@ -32,6 +32,13 @@ const STARTER_PROBLEMS = [
 
 const LEETCODE_PROBLEMS = [
   {
+    id: 'lc-score-of-a-string',
+    slug: 'score-of-a-string',
+    title: 'Score of a String',
+    description: 'Sum the absolute ASCII differences between neighboring characters',
+    difficulty: 'Easy',
+  },
+  {
     id: 'lc-first-matching-char',
     slug: 'first-matching-char',
     title: 'First Matching Character',

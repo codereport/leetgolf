@@ -3,6 +3,18 @@ import { Link, useParams } from 'react-router-dom';
 import { fetchProblem } from '../api';
 import ProblemSolver from '../components/ProblemSolver';
 
+const SCORE_OF_STRING_CASES = [
+  ['hello', '13'],
+  ['zaz', '50'],
+  ['aa', '0'],
+  ['az', '25'],
+  ['za', '25'],
+  ['abcd', '3'],
+  ['dcba', '3'],
+  ['azaz', '75'],
+  ['az'.repeat(50), '2475'],
+];
+
 // Hardcoded starter problems (will be replaced by backend later)
 // Each language has its own expected output format
 const STARTER_PROBLEMS = {
@@ -301,6 +313,22 @@ const STARTER_PROBLEMS = {
       kap: 8,
       tinyapl: 8,
     },
+  },
+  'score-of-a-string': {
+    title: 'Score of a String',
+    slug: 'score-of-a-string',
+    description: 'Given a string s containing 2 to 100 lowercase English letters, return the sum of the absolute differences between the ASCII codes of neighboring characters.',
+    isLeetCode: true,
+    leetcodeLink: 'https://leetcode.com/problems/score-of-a-string/description/',
+    testCasesByLanguage: Object.fromEntries(
+      ['bqn', 'apl', 'j', 'uiua', 'kap', 'tinyapl'].map(language => {
+        const quote = language === 'apl' || language === 'j' ? "'" : '"';
+        return [language, SCORE_OF_STRING_CASES.map(([s, expected]) => ({
+          input: `${quote}${s}${quote}`,
+          expected,
+        }))];
+      })
+    ),
   },
   'first-matching-char': {
     title: 'First Matching Character',

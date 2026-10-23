@@ -137,23 +137,19 @@ async function loadKap() {
 }
 
 /**
- * Parse Kap's boxed output format to extract clean values.
- * Kap wraps results in box-drawing characters:
- *   ┌→────┐
- *   │1 2 3│
- *   └─────┘
- * This extracts the content between │ delimiters.
+ * Remove Kap's display wrappers: angle brackets around vectors and borders
+ * around matrices. Quoted strings keep their literal contents.
  */
-function parseKapBoxedOutput(raw) {
-  if (!raw.includes('│')) return raw;
+function parseKapOutput(raw) {
+  const text = raw.trim();
+  if (text.startsWith('"')) return raw;
+  if (text.startsWith('⟨') && text.endsWith('⟩')) return text.slice(1, -1);
 
-  const matches = raw.match(/│([^│]*)│/g);
-  if (!matches) return raw;
-
-  return matches
-    .map(m => m.slice(1, -1).trim())
-    .filter(s => s && !/^[┌┐└┘─→↓]+$/.test(s))
-    .join('\n');
+  const rows = text.split('\n')
+    .map(line => line.trim())
+    .filter(line => /^[│↓].*│$/.test(line))
+    .map(line => line.slice(1, -1).trim());
+  return rows.length ? rows.join('\n') : raw;
 }
 
 async function evalKap(code) {
@@ -167,7 +163,7 @@ async function evalKap(code) {
   try {
     const result = kapEngine.parseAndEvalWithFormat(code);
     const rawOutput = result.text.join('\n');
-    const output = parseKapBoxedOutput(rawOutput);
+    const output = parseKapOutput(rawOutput);
     return { success: true, output };
   } catch (err) {
     return { success: false, output: err.message || String(err) };
