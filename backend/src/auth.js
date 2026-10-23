@@ -4,13 +4,21 @@ import { findUserByGithubId, createUser, findUserById, getUserStats } from './db
 
 const router = Router();
 
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID?.trim();
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET?.trim();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+function requireGitHubOAuth(req, res, next) {
+  const credentials = [GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET];
+  if (credentials.some(value => !value || value.startsWith('your_') || ['undefined', 'null'].includes(value))) {
+    return res.redirect(`${FRONTEND_URL}?error=oauth_not_configured`);
+  }
+  next();
+}
+
 // Redirect to GitHub OAuth
-router.get('/github', (req, res) => {
+router.get('/github', requireGitHubOAuth, (req, res) => {
   const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
     redirect_uri: `${req.protocol}://${req.get('host')}/auth/github/callback`
@@ -21,7 +29,7 @@ router.get('/github', (req, res) => {
 });
 
 // GitHub OAuth callback
-router.get('/github/callback', async (req, res) => {
+router.get('/github/callback', requireGitHubOAuth, async (req, res) => {
   const { code } = req.query;
   
   if (!code) {

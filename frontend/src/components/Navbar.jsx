@@ -8,11 +8,6 @@ export default function Navbar({ user }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   
-  // Don't show navbar on landing page
-  if (location.pathname === '/') {
-    return null;
-  }
-
   const navLinks = [
     { to: '/problems', label: 'Problems' },
     { to: '/contests', label: 'Contests' },
@@ -33,6 +28,11 @@ export default function Navbar({ user }) {
   useEffect(() => {
     setShowMenu(false);
   }, [location.pathname]);
+
+  // Keep hooks unconditional when navigating to and from the landing page.
+  if (location.pathname === '/') {
+    return null;
+  }
 
   const GITHUB_ISSUES_URL = 'https://github.com/codereport/leetgolf/issues';
 

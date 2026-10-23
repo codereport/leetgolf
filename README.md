@@ -29,6 +29,11 @@ A code golf competitive programming platform with GitHub OAuth login.
    - Authorization callback URL: `http://localhost:3001/auth/github/callback`
 4. Save the Client ID and Client Secret
 
+GitHub sign-in requires both `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in
+`backend/.env`. Browsing and running starter problems at
+http://localhost:5173/problems work without them. Restart the backend after
+changing `.env`.
+
 ### 2. Start Backend
 
 ```bash

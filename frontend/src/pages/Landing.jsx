@@ -1,6 +1,15 @@
 import { getGitHubLoginUrl } from '../api';
+import { Link, useSearchParams } from 'react-router-dom';
 
 export default function Landing() {
+  const [searchParams] = useSearchParams();
+  const authError = {
+    oauth_not_configured: 'GitHub sign-in has not been configured for this site.',
+    no_code: 'GitHub sign-in was cancelled. Please try again.',
+    token_error: 'GitHub sign-in failed. Please try again.',
+    oauth_failed: 'GitHub sign-in failed. Please try again.',
+  }[searchParams.get('error')];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center">
       <div className="text-center">
@@ -20,6 +29,15 @@ export default function Landing() {
           <img src="/logos/tinyapl.svg" alt="TinyAPL" className="h-12 w-12 object-contain" title="TinyAPL" />
         </div>
         
+        {authError && (
+          <div role="alert" className="mx-auto mb-6 max-w-md rounded-lg border border-amber-500/50 bg-gray-800 p-4 text-amber-200">
+            <p>{authError}</p>
+            <Link to="/problems" className="mt-2 inline-block text-green-400 underline hover:text-green-300">
+              Browse problems without signing in
+            </Link>
+          </div>
+        )}
+
         <a
           href={getGitHubLoginUrl()}
           className="inline-flex items-center gap-3 bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-colors border border-gray-600 hover:border-gray-500"
