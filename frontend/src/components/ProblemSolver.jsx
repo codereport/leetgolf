@@ -141,9 +141,11 @@ const KEYBOARD_CONFIGS = {
   },
 };
 
-export default function ProblemSolver({ problem }) {
-  const [language, setLanguage] = useState('bqn');
-  const [code, setCode] = useState('');
+export default function ProblemSolver({ problem, initialLanguage = 'bqn', initialCode = '' }) {
+  const startingLanguage = Object.hasOwn(LANGUAGES, initialLanguage) ? initialLanguage : 'bqn';
+  const startingCode = typeof initialCode === 'string' ? initialCode : '';
+  const [language, setLanguage] = useState(startingLanguage);
+  const [code, setCode] = useState(startingCode);
   const [results, setResults] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -446,7 +448,7 @@ export default function ProblemSolver({ problem }) {
           <input
             ref={inputRef}
             type="text"
-            defaultValue=""
+            defaultValue={startingCode}
             onKeyDown={handleKeyDown}
             className={`absolute inset-0 w-full h-full px-5 py-4 bg-transparent border-none outline-none ${langConfig.fontClass}`}
             style={{

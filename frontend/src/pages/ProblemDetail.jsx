@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchProblem } from '../api';
 import ProblemSolver from '../components/ProblemSolver';
 
@@ -453,6 +453,7 @@ const STARTER_PROBLEMS = {
 
 export default function ProblemDetail() {
   const { slug } = useParams();
+  const location = useLocation();
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -558,7 +559,12 @@ export default function ProblemDetail() {
             </div>
 
             {/* Code Editor (array-box style) */}
-            <ProblemSolver problem={problem} />
+            <ProblemSolver
+              key={`${problem.slug}:${location.key}`}
+              problem={problem}
+              initialLanguage={location.state?.language}
+              initialCode={location.state?.solution}
+            />
           </div>
         )}
       </div>

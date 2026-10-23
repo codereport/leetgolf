@@ -21,7 +21,7 @@ const LANGUAGE_FONTS = {
   tinyapl: 'font-tinyapl',
 };
 
-function ShowcaseTable({ leaderboard }) {
+function ShowcaseTable({ leaderboard, onSolutionClick }) {
   const bestByLang = new Map();
   for (const entry of leaderboard) {
     const prev = bestByLang.get(entry.language);
@@ -57,7 +57,11 @@ function ShowcaseTable({ leaderboard }) {
 
   const renderCell = (entry, isRight) => (
     <>
-      <td className={`${isRight ? 'pl-8' : ''} px-4 py-4 text-center`}>
+      <td
+        className={`${isRight ? 'pl-8' : ''} px-4 py-4 text-center`}
+        title="Shift+click to load this solution"
+        onClick={event => onSolutionClick(event, entry)}
+      >
         <img
           src={LANGUAGE_LOGOS[entry.language]}
           alt={entry.language}
@@ -65,7 +69,11 @@ function ShowcaseTable({ leaderboard }) {
           style={{ width: '3.2rem', height: '3.2rem' }}
         />
       </td>
-      <td className={`${!isRight ? 'pr-8' : ''} px-4 py-4 text-center`}>
+      <td
+        className={`${!isRight ? 'pr-8' : ''} px-4 py-4 text-center`}
+        title="Shift+click to load this solution"
+        onClick={event => onSolutionClick(event, entry)}
+      >
         <code
           className={`${LANGUAGE_FONTS[entry.language]} text-2xl whitespace-nowrap`}
           dangerouslySetInnerHTML={{ __html: highlightCode(entry.solution, entry.language) }}
@@ -110,6 +118,15 @@ export default function Leaderboard() {
   const [hiddenRows, setHiddenRows] = useState(new Set());
   const [hiddenCols, setHiddenCols] = useState(new Set());
   const [showcaseMode, setShowcaseMode] = useState(false);
+
+  const handleSolutionClick = (event, entry) => {
+    if (!event.shiftKey) return false;
+    event.preventDefault();
+    navigate(`/problems/${slug}`, {
+      state: { language: entry.language, solution: entry.solution },
+    });
+    return true;
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -211,7 +228,7 @@ export default function Leaderboard() {
                 No submissions yet. Be the first to solve this problem!
               </div>
             ) : showcaseMode ? (
-              <ShowcaseTable leaderboard={leaderboard} />
+              <ShowcaseTable leaderboard={leaderboard} onSolutionClick={handleSolutionClick} />
             ) : (
               <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                 <table className="w-full">
@@ -247,7 +264,9 @@ export default function Leaderboard() {
                       <tr
                         key={entry.id}
                         className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors"
+                        title="Shift+click to load this solution; Ctrl+click to hide"
                         onClick={(e) => {
+                          if (handleSolutionClick(e, entry)) return;
                           if (e.ctrlKey || e.metaKey) {
                             e.preventDefault();
                             setHiddenRows(prev => {
