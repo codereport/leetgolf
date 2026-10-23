@@ -1,3 +1,5 @@
+import { formatClientUiua } from './client-runner.js';
+
 // Backend API URL - change this when you deploy your backend
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -139,22 +141,7 @@ export async function runCode(language, code, input = '') {
  * @returns {Promise<{success: boolean, formatted: string}>}
  */
 export async function formatUiua(code) {
-  try {
-    const response = await fetch(`${API_URL}/api/format-uiua`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ code }),
-    });
-    
-    if (!response.ok) {
-      return { success: false, formatted: code };
-    }
-    
-    return await response.json();
-  } catch (error) {
-    return { success: false, formatted: code };
-  }
+  return formatClientUiua(code);
 }
 
 // ============================================================================

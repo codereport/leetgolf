@@ -8,7 +8,7 @@
  * - APL: via dyalog (local)
  */
 
-import { spawn, execSync } from 'child_process';
+import { spawn, execSync, execFileSync } from 'child_process';
 import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -263,14 +263,20 @@ async function runJ(code, input, leftArg = null) {
 // ============================================================================
 function findAPLExecutable() {
   const candidates = [
+    process.env.DYALOG_EXECUTABLE,
     'dyalog',
     '/opt/mdyalog/20.0/64/unicode/mapl',
     join(process.env.HOME || '', 'dyalog', 'mapl'),
-  ];
+  ].filter(Boolean);
   
   for (const cmd of candidates) {
     try {
-      execSync(`echo "⎕OFF" | "${cmd}" 2>/dev/null`, { timeout: 3000, stdio: 'ignore' });
+      execFileSync(cmd, ['-b'], {
+        input: '⎕OFF\n',
+        timeout: 3000,
+        stdio: ['pipe', 'ignore', 'ignore'],
+        env: { ...process.env, DYALOG_NOPOPUPS: '1', DYALOG_NETCORE: '0', ENABLE_CEF: '0' },
+      });
       return cmd;
     } catch (e) {
       // Try next
@@ -291,21 +297,17 @@ async function runAPL(code, input, leftArg = null) {
   }
   
   return new Promise((resolve) => {
-    // APL: apply the dfn/tacit function to the input
-    // Only escape quotes in user code (which may contain APL quote characters)
-    // Input and leftArg are test data that already contain proper APL literals
-    const escapedCode = code.replace(/'/g, "''");
-    
-    let aplInput;
-    if (leftArg !== null) {
-      aplInput = `]boxing on -s=min\n⎕←${leftArg} (${escapedCode}) ${input}\n`;
-    } else {
-      aplInput = `]boxing on -s=min\n⎕←(${escapedCode}) ${input}\n`;
-    }
+    // Send APL source directly: quotes inside dfns must remain unchanged.
+    const expression = leftArg !== null
+      ? `${leftArg} (${code}) ${input}`
+      : `(${code}) ${input}`;
+    const lines = [']boxing on -s=min', '⎕IO←1', '⎕PW←32767', `⎕←${expression}`, '⎕OFF'];
+    const aplInput = lines.join('\n') + '\n';
+    const inputEcho = new Set(lines.map(line => line.trim()));
     
     const proc = spawn(aplExecutable, ['-b'], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, DYALOG_NOPOPUPS: '1' }
+      env: { ...process.env, DYALOG_NOPOPUPS: '1', DYALOG_NETCORE: '0', ENABLE_CEF: '0' }
     });
     
     let stdout = '';
@@ -331,6 +333,7 @@ async function runAPL(code, input, leftArg = null) {
         .filter(line => {
           const t = line.trim();
           if (!t) return false;
+          if (inputEcho.has(t)) return false;
           if (t.includes('ERR: Display.cpp')) return false;
           if (t.includes('ANGLE')) return false;
           if (t.includes('glX')) return false;
@@ -348,6 +351,7 @@ async function runAPL(code, input, leftArg = null) {
           .split('\n')
           .filter(line => {
             const t = line.trim();
+            if (inputEcho.has(t)) return false;
             if (t.startsWith('Was ')) return false;
             if (t.match(/^Was (ON|OFF)/)) return false;
             if (t.includes('-style=')) return false;
@@ -356,7 +360,8 @@ async function runAPL(code, input, leftArg = null) {
           })
           .join('\n')
           .trim();
-        resolve({ success: true, output: cleanOutput });
+        const isError = /\b(?:VALUE|DOMAIN|RANK|LENGTH|SYNTAX|INDEX|NONCE|LIMIT|DEFN|STACK|FILE|SYSTEM|INTERRUPT)\s+ERROR\b|\bERROR\s+\d+:/i.test(cleanOutput);
+        resolve({ success: exitCode === 0 && !isError, output: cleanOutput });
       }
     });
     

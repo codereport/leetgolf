@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Uiua runner</title>
+</head>
+<body>
+<script type="module">
+  try {
+    const uiua = await import('../vendor/array-box/wasm/uiua_wasm.js');
+    await uiua.default();
+    window._leetgolfRunner = {
+      eval: code => JSON.parse(uiua.eval_uiua(code)),
+      format: code => JSON.parse(uiua.format_uiua(code)),
+    };
+  } catch (error) {
+    window._leetgolfError = error;
+  }
+</script>
+</body>
+</html>

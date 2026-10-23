@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TinyAPL runner</title>
+</head>
+<body>
+<script type="module">
+  try {
+    const tinyapl = await import('../vendor/array-box/wasm/tinyapl/tinyapl.js');
+    let stdout = '';
+    let stderr = '';
+    const context = await tinyapl.newContext(
+      async () => '',
+      async text => { stdout += text; },
+      async text => { stderr += text; },
+      {},
+      ''
+    );
+
+    const evaluate = async code => {
+      stdout = '';
+      stderr = '';
+      const value = await tinyapl.runCode(context, code);
+      // The bundled runtime returns a Value or an Error with a numeric code.
+      const success = !('code' in value) && !stderr.trim();
+      const output = [stderr.trim(), stdout.trim(), await tinyapl.show(value, false)]
+        .filter(Boolean).join('\n');
+      return { success, output };
+    };
+    window._leetgolfRunner = { eval: evaluate };
+  } catch (error) {
+    window._leetgolfError = error;
+  }
+</script>
+</body>
+</html>

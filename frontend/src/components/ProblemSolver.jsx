@@ -405,7 +405,7 @@ export default function ProblemSolver({ problem }) {
           {dropdownOpen && (
             <div className="absolute top-full left-0 mt-1 bg-gray-800 border-2 border-gray-600 rounded-lg shadow-lg z-50 min-w-[160px]">
               {LANGUAGE_ORDER.map((lang) => {
-                const isAvailable = availableLanguages[lang];
+                const isAvailable = availableLanguages[lang] || hasClientRunner(lang);
                 return (
                   <button
                     key={lang}

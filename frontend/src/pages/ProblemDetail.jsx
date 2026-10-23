@@ -59,10 +59,10 @@ const STARTER_PROBLEMS = {
     optimalLength: {
       bqn: 3,  // "1+↕"
       apl: 1,  // "⍳"
-      j: 4,    // ">:i."
+      j: 4,    // "1+i."
       uiua: 3, // "+1⇡"
-      kap: 1,  // "⍳"
-      tinyapl: 1,  // "⍳"
+      kap: 3,  // "1+⍳"
+      tinyapl: 2,  // "⍳⑴"
     },
   },
   'iota-rotate': {

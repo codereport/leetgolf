@@ -54,6 +54,29 @@ npm run dev
 
 Visit http://localhost:5173
 
+### Where code runs
+
+| Language | Execution location | Requirements |
+| --- | --- | --- |
+| BQN | Backend (Node.js) | Bundled JavaScript interpreter |
+| TinyAPL | Browser (WebAssembly) | Bundled interpreter; about 12 MB on first use |
+| Kap | Backend when installed; otherwise browser | Bundled JavaScript fallback |
+| Uiua, J | Backend when installed; otherwise browser | Bundled WebAssembly fallback; Uiua formatting runs in the browser |
+| APL | Backend (Dyalog) | Install Dyalog on the backend host |
+
+Run Tests checks the first two cases. Submit runs all cases and saves a passing
+solution if you are signed in. Running code does not require sign-in.
+
+The backend's `/api/languages` endpoint reports server interpreters only. TinyAPL,
+Kap, Uiua, and J can still run in the browser when their server availability is
+`false`.
+
+For APL, [install Dyalog](https://docs.dyalog.com/20.0/unix-installation-and-configuration-guide/installation/)
+on each backend host. If `dyalog` is not on `PATH`, set
+`DYALOG_EXECUTABLE=/path/to/dyalog/mapl` in `backend/.env` and restart the backend.
+Dyalog supports installation in a user directory without administrator access.
+Its [licence terms](https://www.dyalog.com/prices-and-licences.htm) apply.
+
 ## Production Deployment
 
 ### Backend (Railway/Render/Fly.io)

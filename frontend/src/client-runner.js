@@ -4,80 +4,70 @@
  */
 
 // ============================================================================
-// TinyAPL (WASM via iframe)
+// WASM interpreters isolated in loader iframes
 // ============================================================================
-let tinyaplIframe = null;
-let tinyaplReady = false;
-let tinyaplLoadError = null;
-let tinyaplLoading = null;
+function createIframeRunner(name, loaderFile) {
+  let iframe = null;
+  let loading = null;
 
-async function loadTinyapl() {
-  if (tinyaplReady) return true;
-  if (tinyaplLoadError) return false;
-  if (tinyaplLoading) return tinyaplLoading;
+  async function load() {
+    if (iframe) return iframe.contentWindow._leetgolfRunner;
+    if (loading) return loading;
 
-  tinyaplLoading = new Promise((resolve, reject) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
+    loading = new Promise((resolve, reject) => {
+      const frame = document.createElement('iframe');
+      frame.style.display = 'none';
+      let settled = false;
 
-    const timeout = setTimeout(() => {
-      tinyaplLoadError = new Error('TinyAPL WASM loading timed out (12MB download)');
-      reject(tinyaplLoadError);
-    }, 120000);
-
-    const poll = setInterval(() => {
-      try {
-        if (iframe.contentWindow?._tinyaplReady) {
-          clearTimeout(timeout);
-          clearInterval(poll);
-          tinyaplIframe = iframe;
-          tinyaplReady = true;
-          resolve(true);
-        } else if (iframe.contentWindow?._tinyaplError) {
-          clearTimeout(timeout);
-          clearInterval(poll);
-          tinyaplLoadError = iframe.contentWindow._tinyaplError;
-          reject(tinyaplLoadError);
+      const finish = error => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        clearInterval(poll);
+        if (error) {
+          loading = null;
+          frame.remove();
+          reject(new Error(`${name} failed to load: ${error.message || String(error)}. Please try again.`));
+        } else {
+          iframe = frame;
+          resolve(frame.contentWindow._leetgolfRunner);
         }
-      } catch (e) {
-        // cross-origin or not ready yet, keep polling
-      }
-    }, 200);
+      };
 
-    iframe.onerror = function () {
-      clearTimeout(timeout);
-      clearInterval(poll);
-      tinyaplLoadError = new Error('Failed to load TinyAPL loader');
-      reject(tinyaplLoadError);
-    };
+      const timeout = setTimeout(() => finish(new Error('Interpreter download timed out')), 120000);
+      const poll = setInterval(() => {
+        try {
+          if (frame.contentWindow?._leetgolfRunner) finish();
+          else if (frame.contentWindow?._leetgolfError) finish(frame.contentWindow._leetgolfError);
+        } catch (error) {
+          finish(error);
+        }
+      }, 100);
 
-    iframe.src = '/vendor/array-box/wasm/tinyapl/tinyapl-loader.html';
-    document.body.appendChild(iframe);
-  });
-
-  try {
-    return await tinyaplLoading;
-  } catch {
-    return false;
+      frame.onerror = () => finish(new Error('Could not open interpreter loader'));
+      frame.src = `${import.meta.env.BASE_URL}runners/${loaderFile}`;
+      document.body.appendChild(frame);
+    });
+    return loading;
   }
+
+  return async (code, operation = 'eval') => {
+    try {
+      const runner = await load();
+      return await runner[operation](code);
+    } catch (error) {
+      return { success: false, output: error.message || String(error) };
+    }
+  };
 }
 
-async function evalTinyapl(code) {
-  if (!tinyaplReady) {
-    const loaded = await loadTinyapl();
-    if (!loaded) {
-      return {
-        success: false,
-        output: `TinyAPL failed to load: ${tinyaplLoadError?.message || 'Unknown error'}\n\nThe WASM file is ~12MB and may take a moment to download.`
-      };
-    }
-  }
+const evalTinyapl = createIframeRunner('TinyAPL', 'tinyapl-loader.html');
+const evalJ = createIframeRunner('J', 'j-loader.html');
+const evalUiua = createIframeRunner('Uiua', 'uiua-loader.html');
 
-  try {
-    return await tinyaplIframe.contentWindow._tinyaplEval(code);
-  } catch (err) {
-    return { success: false, output: `TinyAPL error: ${err.message || String(err)}` };
-  }
+export async function formatClientUiua(code) {
+  const result = await evalUiua(code, 'format');
+  return result.success ? { ...result, formatted: result.formatted.trimEnd() } : result;
 }
 
 // ============================================================================
@@ -135,7 +125,7 @@ async function loadKap() {
       reject(kapLoadError);
     };
 
-    iframe.src = '/vendor/array-box/wasm/kap/kap-loader.html';
+    iframe.src = `${import.meta.env.BASE_URL}vendor/array-box/wasm/kap/kap-loader.html`;
     document.body.appendChild(iframe);
   });
 
@@ -191,6 +181,8 @@ async function evalKap(code) {
 const CLIENT_RUNNERS = {
   tinyapl: evalTinyapl,
   kap: evalKap,
+  j: evalJ,
+  uiua: evalUiua,
 };
 
 /**
@@ -212,15 +204,16 @@ export async function runClientCode(language, code) {
 }
 
 /**
- * Run test cases client-side, wrapping code as a tacit function applied to input.
- * Matches backend runner.js wrapping: (code) input  or  leftArg (code) input
+ * Apply a tacit function to each input, or place Uiua's input on the stack.
  */
 export async function runClientTests(language, code, testCases) {
   const results = [];
 
   for (const test of testCases) {
     let expr;
-    if (test.leftArg) {
+    if (language === 'uiua') {
+      expr = `${test.input}\n${code}`;
+    } else if (test.leftArg) {
       expr = `${test.leftArg} (${code}) ${test.input}`;
     } else {
       expr = `(${code}) ${test.input}`;

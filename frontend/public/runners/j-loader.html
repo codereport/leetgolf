@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>J runner</title>
+</head>
+<body>
+<script>
+  const wasmBase = new URL('../vendor/array-box/wasm/j/', location.href);
+  window.Module = {
+    locateFile: path => new URL(path, wasmBase).href,
+    onRuntimeInitialized() {
+      // Emscripten calls main after this hook; J initializes its engine there.
+      setTimeout(() => {
+        try {
+          const evaluate = Module.cwrap('em_jdo', 'string', ['string']);
+          window._leetgolfRunner = {
+            eval(code) {
+              const output = evaluate(code);
+              return { success: !/^\|(?:[a-z]+ )*error\b/im.test(output), output };
+            },
+          };
+        } catch (error) {
+          window._leetgolfError = error;
+        }
+      }, 0);
+    },
+    onAbort(message) { window._leetgolfError = new Error(String(message)); },
+    print() {},
+    printErr() {},
+  };
+  const script = document.createElement('script');
+  script.src = new URL('emj.js', wasmBase).href;
+  script.onerror = () => { window._leetgolfError = new Error('Could not download J interpreter'); };
+  document.head.appendChild(script);
+</script>
+</body>
+</html>
