@@ -21,7 +21,7 @@ const LANGUAGE_FONTS = {
   tinyapl: 'font-tinyapl',
 };
 
-function ShowcaseTable({ leaderboard, onSolutionClick }) {
+function ShowcaseTable({ leaderboard, columns, onSolutionClick }) {
   const bestByLang = new Map();
   for (const entry of leaderboard) {
     const prev = bestByLang.get(entry.language);
@@ -30,7 +30,7 @@ function ShowcaseTable({ leaderboard, onSolutionClick }) {
     }
   }
   const entries = [...bestByLang.values()];
-  const mid = Math.ceil(entries.length / 2);
+  const mid = columns === 1 ? entries.length : Math.ceil(entries.length / 2);
   const left = entries.slice(0, mid);
   const right = entries.slice(mid);
   const rows = Math.max(left.length, right.length);
@@ -70,7 +70,7 @@ function ShowcaseTable({ leaderboard, onSolutionClick }) {
         />
       </td>
       <td
-        className={`${!isRight ? 'pr-8' : ''} px-4 py-4 text-center`}
+        className={`${columns === 2 && !isRight ? 'pr-8' : ''} px-4 py-4 text-center`}
         title="Shift+click to load this solution"
         onClick={event => onSolutionClick(event, entry)}
       >
@@ -98,7 +98,7 @@ function ShowcaseTable({ leaderboard, onSolutionClick }) {
         {Array.from({ length: rows }, (_, i) => (
           <tr key={i}>
             {left[i] ? renderCell(left[i], false) : <><td /><td /></>}
-            {right[i] ? renderCell(right[i], true) : <><td /><td /></>}
+            {columns === 2 && (right[i] ? renderCell(right[i], true) : <><td /><td /></>)}
           </tr>
         ))}
       </tbody>
@@ -117,7 +117,8 @@ export default function Leaderboard() {
   const [notAuthenticated, setNotAuthenticated] = useState(false);
   const [hiddenRows, setHiddenRows] = useState(new Set());
   const [hiddenCols, setHiddenCols] = useState(new Set());
-  const [showcaseMode, setShowcaseMode] = useState(false);
+  // 0: regular leaderboard, 1: two-column showcase, 2: vertical showcase.
+  const [showcaseMode, setShowcaseMode] = useState(0);
 
   const handleSolutionClick = (event, entry) => {
     if (!event.shiftKey) return false;
@@ -136,7 +137,7 @@ export default function Leaderboard() {
       }
       if (e.ctrlKey && e.shiftKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault();
-        setShowcaseMode(prev => !prev);
+        if (!e.repeat) setShowcaseMode(prev => (prev + 1) % 3);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -228,7 +229,12 @@ export default function Leaderboard() {
                 No submissions yet. Be the first to solve this problem!
               </div>
             ) : showcaseMode ? (
-              <ShowcaseTable leaderboard={leaderboard} onSolutionClick={handleSolutionClick} />
+              <ShowcaseTable
+                key={showcaseMode}
+                leaderboard={leaderboard}
+                columns={showcaseMode === 2 ? 1 : 2}
+                onSolutionClick={handleSolutionClick}
+              />
             ) : (
               <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                 <table className="w-full">
